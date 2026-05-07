@@ -1,0 +1,93 @@
+/* ════════════════════════════════════════════════════════════
+   UNIRATE COLOR PALETTE
+   Warm, earthy, minimal. One rust accent. Semantic colors only.
+════════════════════════════════════════════════════════════ */
+
+/* ════ LIGHT THEME (default) ════ */
+:root {
+  /* ── Surfaces ── */
+  --color-cream:              #FBF6EC;  /* Page background */
+  --color-paper:              #FFFDF7;  /* Cards, surfaces */
+  --color-paper-2:            #F5EEDF;  /* Secondary surfaces, hover */
+
+  /* ── Text ── */
+  --color-ink:                #1C1917;  /* Primary text, headers */
+  --color-ink-2:              #3A342E;  /* Body text */
+  --color-muted:              #8B827A;  /* Captions, metadata */
+  --color-muted-2:            #A89E91;  /* Dimmed captions */
+
+  /* ── Accent (Rust) ── */
+  --color-rust:               #B84A1E;  /* Main accent, links, CTA */
+  --color-rust-soft:          #C2724C;  /* Secondary accent */
+  --color-rust-wash:          #F2DDCF;  /* Accent backgrounds */
+
+  /* ── Borders ── */
+  --color-sepia:              #E8DCC6;  /* Borders */
+  --color-sepia-2:            #D9C9AD;  /* Dense borders */
+
+  /* ── Semantic ── */
+  --color-ok:                 #4A7A3C;  /* Success, approved */
+  --color-warn:               #C29A2A;  /* Warning, moderation */
+  --color-danger:             #9A2B1A;  /* Danger, blocks, low scores */
+  --color-sage:               #6B7A5A;  /* Secondary (video) */
+  --color-gold:               #A88030;  /* Secondary metallic */
+
+  /* ── Mode ── */
+  --color-surface:            var(--color-cream);
+  --color-surface-bright:     var(--color-paper);
+  --color-surface-container:  var(--color-paper-2);
+  --color-on-surface:         var(--color-ink);
+  --color-on-surface-variant: var(--color-ink-2);
+  --color-outline:            var(--color-muted);
+  --color-outline-variant:    var(--color-muted-2);
+  --color-border:             var(--color-sepia);
+  --color-primary:            var(--color-rust);
+  --color-secondary:          var(--color-rust-soft);
+  --color-error:              var(--color-danger);
+  --color-success:            var(--color-ok);
+  --color-warning:            var(--color-warn);
+}
+
+/* ════ DARK THEME ════ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-cream:              #1A1613;  /* Espresso — page background */
+    --color-paper:              #24201C;  /* Paper dark — cards */
+    --color-paper-2:            #2E2824;  /* Paper-2 — hover */
+    --color-ink:                #F4EBDB;  /* Cream text */
+    --color-ink-2:              #E6D9C9;  /* Body text, slightly lighter */
+    --color-muted:              #B8A999;  /* Captions */
+    --color-muted-2:            #9A8B7A;  /* Dimmed */
+    --color-rust:               #D16A3D;  /* Rust dark — lighter for contrast */
+    --color-rust-soft:          #E08050;  /* Secondary */
+    --color-rust-wash:          #3A2E25;  /* Accent backgrounds */
+    --color-sepia:              #3A322A;  /* Borders */
+    --color-sepia-2:            #4A3F37;  /* Dense borders */
+    --color-ok:                 #7CB554;  /* Success (lighter) */
+    --color-warn:               #E6B84A;  /* Warning (lighter) */
+    --color-danger:             #D84A34;  /* Danger (lighter) */
+    --color-sage:               #8B9A6F;  /* Secondary */
+    --color-gold:               #C9A856;  /* Gold (lighter) */
+  }
+}
+
+/* ════ DARK CLASS (explicit .dark) ════ */
+.dark {
+  --color-cream:              #1A1613;
+  --color-paper:              #24201C;
+  --color-paper-2:            #2E2824;
+  --color-ink:                #F4EBDB;
+  --color-ink-2:              #E6D9C9;
+  --color-muted:              #B8A999;
+  --color-muted-2:            #9A8B7A;
+  --color-rust:               #D16A3D;
+  --color-rust-soft:          #E08050;
+  --color-rust-wash:          #3A2E25;
+  --color-sepia:              #3A322A;
+  --color-sepia-2:            #4A3F37;
+  --color-ok:                 #7CB554;
+  --color-warn:               #E6B84A;
+  --color-danger:             #D84A34;
+  --color-sage:               #8B9A6F;
+  --color-gold:               #C9A856;
+}

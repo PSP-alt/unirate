@@ -1,0 +1,257 @@
+rules_version = '2';
+
+// ════════════════════════════════════════════════════════════════════
+// UNIRATE · Firestore Security Rules
+// ────────────────────────────────────────────────────────────────────
+// Главные принципы:
+//   1) Никогда не доверять клиенту — все агрегаты, статусы и роли
+//      под защитой серверных правил или Cloud Functions.
+//   2) Чтение публичного контента (профили преподавателей, одобренные
+//      отзывы, материалы) разрешено всем.
+//   3) Запись — только владельцу своих документов; админ может всё.
+// ════════════════════════════════════════════════════════════════════
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ═══════════════════ helpers ═══════════════════
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isTeacherSelf(uid) {
+      return isOwner(uid)
+        && exists(/databases/$(database)/documents/users/$(uid))
+        && get(/databases/$(database)/documents/users/$(uid)).data.role == 'teacher';
+    }
+
+    // Изменяемые клиентом поля — всё остальное запрещено
+    function onlyChanged(allowedFields) {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(allowedFields);
+    }
+
+    // ═══════════════════ users/{uid} ═══════════════════
+
+    match /users/{uid} {
+      allow read: if isSignedIn();
+
+      // Создавать документ может только сам пользователь, и только со
+      // стартовой ролью student/teacher (не admin) и без warnings/блокировок.
+      allow create: if isOwner(uid)
+        && request.resource.data.uid == uid
+        && request.resource.data.role in ['student', 'teacher']
+        && (!('isActive' in request.resource.data) || request.resource.data.isActive is bool)
+        && !('warnings' in request.resource.data)
+        && !('blockReason' in request.resource.data)
+        && !('blockedUntil' in request.resource.data)
+        && !('isDeleted' in request.resource.data);
+
+      // Пользователь может редактировать ТОЛЬКО свой профиль и
+      // только разрешённые поля. role/isActive/warnings/блокировки —
+      // только админ.
+      allow update: if (
+        isOwner(uid) && onlyChanged([
+          'firstName', 'lastName', 'middleName',
+          'nickname', 'bio', 'avatarUrl',
+          'gender', 'faculty', 'profileTheme',
+          'studentId', 'course',
+          'consents'
+        ])
+      ) || isAdmin();
+
+      // Удалять может только админ; пользователь "удаляется" через
+      // флаг isDeleted, который тоже выставляет админ.
+      allow delete: if isAdmin();
+    }
+
+    // ═══════════════════ teachers/{uid} ═══════════════════
+
+    match /teachers/{uid} {
+      allow read: if true;  // публичный профиль преподавателя
+
+      // Создаётся только владельцем-преподавателем; рейтинговые
+      // агрегаты должны стартовать с нулей.
+      allow create: if isTeacherSelf(uid)
+        && request.resource.data.userId == uid
+        && request.resource.data.averageRating == 0
+        && request.resource.data.ratingsCount == 0;
+
+      // Преподаватель редактирует только свой профиль; рейтинговые
+      // поля — только админ или Cloud Functions.
+      allow update: if (
+        isOwner(uid) && onlyChanged([
+          'firstName', 'lastName', 'middleName',
+          'position', 'department',
+          'teacherType', 'teacherTypes',
+          'disciplines', 'bio', 'avatarUrl',
+          'contactEmail', 'ratingsEnabled',
+          'updatedAt'
+        ])
+      ) || isAdmin();
+
+      allow delete: if isAdmin();
+    }
+
+    // ═══════════════════ ratings/{id} ═══════════════════
+
+    match /ratings/{id} {
+      // Любой может читать одобренные отзывы (публичный контент).
+      // Свои pending отзывы видит только автор. Админ — всё.
+      allow read: if resource.data.status == 'approved'
+        || (isSignedIn() && resource.data.studentId == request.auth.uid)
+        || isAdmin();
+
+      // Создание отзыва: только от своего имени, в статусе pending,
+      // averageScore в [1,10], счётчики и массивы голосов — нули.
+      allow create: if isSignedIn()
+        && request.resource.data.studentId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.averageScore is number
+        && request.resource.data.averageScore >= 1
+        && request.resource.data.averageScore <= 10
+        && request.resource.data.helpfulVotes == 0
+        && request.resource.data.unhelpfulVotes == 0
+        && request.resource.data.flags == 0
+        && request.resource.data.votedBy.size() == 0
+        && request.resource.data.flaggedBy.size() == 0
+        && (!('teacherResponse' in request.resource.data)
+            || request.resource.data.teacherResponse == '');
+
+      // Update — три сценария:
+      //   а) автор-студент редактирует только свой отзыв (текст, оценки),
+      //      но не статус/голоса/жалобы;
+      //   б) любой авторизованный пользователь голосует/жалуется
+      //      (только +1 в votedBy/flaggedBy через arrayUnion);
+      //   в) преподаватель отвечает на отзыв на свой профиль;
+      //   г) админ — может всё.
+      allow update: if isAdmin()
+        || (
+          // (а) автор-студент редактирует свой pending-отзыв
+          isSignedIn()
+          && resource.data.studentId == request.auth.uid
+          && resource.data.status == 'pending'
+          && onlyChanged([
+            'criteriaScores', 'averageScore',
+            'positiveComment', 'negativeComment', 'comment',
+            'discipline', 'teacherRole',
+            'attendanceLevel', 'attendanceLecture', 'attendanceSeminar',
+            'semester', 'nps', 'courseScore',
+            'isAnonymous', 'studentCourse',
+            'updatedAt'
+          ])
+        )
+        || (
+          // (б) голосование за полезность — добавление себя в votedBy
+          isSignedIn()
+          && onlyChanged(['helpfulVotes', 'unhelpfulVotes', 'votedBy', 'updatedAt'])
+          && !(request.auth.uid in resource.data.votedBy)
+          && (request.auth.uid in request.resource.data.votedBy)
+        )
+        || (
+          // (в) жалоба — добавление себя в flaggedBy
+          isSignedIn()
+          && onlyChanged(['flags', 'flaggedBy', 'flagReasons', 'status', 'updatedAt'])
+          && !(request.auth.uid in resource.data.flaggedBy)
+          && (request.auth.uid in request.resource.data.flaggedBy)
+        )
+        || (
+          // (г) преподаватель отвечает на отзыв о себе
+          isSignedIn()
+          && exists(/databases/$(database)/documents/teachers/$(request.auth.uid))
+          && request.auth.uid == resource.data.teacherId
+          && onlyChanged(['teacherResponse', 'teacherResponseAt', 'updatedAt'])
+        );
+
+      allow delete: if isAdmin();
+    }
+
+    // ═══════════════════ materials/{id} ═══════════════════
+
+    match /materials/{id} {
+      allow read: if true;  // публичные материалы
+
+      // Создавать может только зарегистрированный преподаватель,
+      // от своего имени.
+      allow create: if isTeacherSelf(request.auth.uid)
+        && request.resource.data.teacherId == request.auth.uid
+        && request.resource.data.downloadCount == 0;
+
+      // Редактировать — только владелец материала или админ.
+      allow update: if (
+        (isSignedIn() && resource.data.teacherId == request.auth.uid
+         && onlyChanged([
+           'title', 'description', 'category', 'courses', 'discipline',
+           'fileUrl', 'fileName', 'fileSize', 'fileType',
+           'updatedAt'
+         ]))
+        || (
+          // Любой авторизованный может инкрементировать счётчик скачиваний
+          isSignedIn() && onlyChanged(['downloadCount', 'updatedAt'])
+        )
+        || isAdmin()
+      );
+
+      allow delete: if (isSignedIn() && resource.data.teacherId == request.auth.uid)
+        || isAdmin();
+    }
+
+    // ═══════════════════ joinRequests/{id} ═══════════════════
+    // Заявки из формы «Хочешь помочь проекту?»
+
+    match /joinRequests/{id} {
+      // Создавать может кто угодно (даже неавторизованный),
+      // читать — только админ.
+      allow create: if request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 200
+        && request.resource.data.contact is string
+        && request.resource.data.contact.size() <= 200
+        && (!('message' in request.resource.data)
+            || request.resource.data.message.size() <= 2000);
+
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ═══════════════════ supportMessages/{id} ═══════════════════
+    // Обращения в поддержку: жалобы и предложения
+
+    match /supportMessages/{id} {
+      // Создавать может любой авторизованный пользователь
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.type in ['complaint', 'suggestion']
+        && request.resource.data.subject is string
+        && request.resource.data.subject.size() > 0
+        && request.resource.data.subject.size() <= 200
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 5000
+        && request.resource.data.status == 'new';
+
+      // Читать свои обращения может автор, все — админ
+      allow read: if (isSignedIn() && resource.data.userId == request.auth.uid)
+        || isAdmin();
+
+      // Обновлять и удалять — только админ
+      allow update, delete: if isAdmin();
+    }
+
+    // ═══════════════════ default deny ═══════════════════
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

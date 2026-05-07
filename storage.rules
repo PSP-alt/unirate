@@ -1,0 +1,71 @@
+rules_version = '2';
+
+// ════════════════════════════════════════════════════════════════════
+// UNIRATE · Cloud Storage Security Rules
+// ════════════════════════════════════════════════════════════════════
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && firestore.exists(/databases/(default)/documents/users/$(request.auth.uid))
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isImage() {
+      return request.resource.contentType != null
+        && request.resource.contentType.matches('image/(png|jpe?g|webp|gif)');
+    }
+
+    function isAllowedMaterial() {
+      return request.resource.contentType != null
+        && (
+          request.resource.contentType.matches('application/(pdf|msword|vnd\\.openxmlformats.*|vnd\\.ms-.*)')
+          || request.resource.contentType.matches('image/(png|jpe?g|webp)')
+          || request.resource.contentType.matches('text/.*')
+          || request.resource.contentType.matches('video/(mp4|x-msvideo|webm)')
+        );
+    }
+
+    // ════ Аватары студентов ════
+    match /avatars/{uid}/{file=**} {
+      allow read: if true;
+      allow write: if isOwner(uid)
+        && isImage()
+        && request.resource.size < 5 * 1024 * 1024;  // 5 MB
+      allow delete: if isOwner(uid) || isAdmin();
+    }
+
+    // ════ Аватары преподавателей ════
+    match /teacher-avatars/{uid}/{file=**} {
+      allow read: if true;
+      allow write: if isOwner(uid)
+        && isImage()
+        && request.resource.size < 5 * 1024 * 1024;
+      allow delete: if isOwner(uid) || isAdmin();
+    }
+
+    // ════ Учебные материалы ════
+    match /materials/{teacherId}/{file=**} {
+      allow read: if true;  // публичная библиотека
+      allow write: if isOwner(teacherId)
+        && isAllowedMaterial()
+        && request.resource.size < 50 * 1024 * 1024;  // 50 MB
+      allow delete: if isOwner(teacherId) || isAdmin();
+    }
+
+    // ════ default deny ════
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

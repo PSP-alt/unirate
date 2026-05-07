@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(npm install:*)",
+      "Bash(npx vite:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\);console.log\\(JSON.stringify\\(p.dependencies,null,2\\)\\)\")",
+      "Bash(python -c \"import sys,json; lines=sys.stdin.read\\(\\).strip\\(\\).split\\('\\\\n'\\); [print\\(json.loads\\(l\\).get\\('content',''\\)[:2000] if isinstance\\(json.loads\\(l\\).get\\('content',''\\),str\\) else str\\(json.loads\\(l\\).get\\('content',''\\)\\)[:2000]\\) for l in lines[-30:] if json.loads\\(l\\).get\\('role'\\) in \\('user','assistant'\\)]\")",
+      "Bash(python -c ' *)",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"const fs=require\\('fs'\\); const p='C:/Users/hanuk/.claude/projects/C--EduHub/ef5960eb-caa5-4044-836c-c3bdfcbd2aa1.jsonl'; const lines=fs.readFileSync\\(p,'utf8'\\).split\\('\\\\n'\\).filter\\(l=>l.trim\\(\\)\\); console.log\\('Total:',lines.length\\); const last=lines.slice\\(-10\\); for\\(const line of last\\){try{const o=JSON.parse\\(line\\);const r=o.role||'';const c=o.content||'';if\\(Array.isArray\\(c\\)\\){for\\(const i of c\\){if\\(i&&i.type==='text'\\){console.log\\('ROLE:',r,'\\\\n',i.text.slice\\(0,1500\\),'\\\\n---'\\);}}}else if\\(typeof c==='string'\\){console.log\\('ROLE:',r,'\\\\n',c.slice\\(0,1500\\),'\\\\n---'\\);}}catch\\(e\\){}}\")",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(node -e \"const fs=require\\('fs'\\); const c=fs.readFileSync\\('C:/EduHub/src/pages/Admin.jsx','utf8'\\); console.log\\('Lines:', c.split\\('\\\\n'\\).length, '| Chars:', c.length\\);\")",
+      "Bash(node -e \"const fs=require\\('fs'\\); ['C:/EduHub/src/pages/Materials.jsx','C:/EduHub/src/pages/Profile.jsx','C:/EduHub/src/services/materials.js','C:/EduHub/src/services/auth.js'].forEach\\(f=>{try{const c=fs.readFileSync\\(f,'utf8'\\); console.log\\('FILE:',f,'LINES:',c.split\\('\\\\n'\\).length\\);}catch\\(e\\){console.log\\('MISSING:',f\\);}}\\);\")",
+      "Bash(node -e \"const fs=require\\('fs'\\); const pages=fs.readdirSync\\('C:/EduHub/src/pages'\\); console.log\\(pages.join\\('\\\\n'\\)\\);\")",
+      "Bash(node -e \"const fs=require\\('fs'\\);const r=fs.readFileSync\\('C:/EduHub/src/App.jsx','utf8'\\);console.log\\(r.includes\\('DevSeed'\\)?'DevSeed FOUND':'DevSeed MISSING'\\); console.log\\(r.includes\\('/dev/seed'\\)?'route FOUND':'route MISSING'\\);\")",
+      "Bash(node -e \"const fs=require\\('fs'\\);['C:/EduHub/src/App.jsx','C:/EduHub/src/components/layout/Footer.jsx'].forEach\\(f=>{try{console.log\\('FILE:',f,'\\\\n',fs.readFileSync\\(f,'utf8'\\).slice\\(0,3000\\),'\\\\n---'\\);}catch\\(e\\){console.log\\('MISSING:',f\\);}}\\);\")",
+      "Bash(node -e \"const fs=require\\('fs'\\);const a=fs.readFileSync\\('C:/EduHub/src/App.jsx','utf8'\\);console.log\\(a\\);\")",
+      "Bash(node -e \"const fs=require\\('fs'\\);console.log\\(fs.readFileSync\\('C:/EduHub/src/components/shared/PrivateRoute.jsx','utf8'\\)\\);\")",
+      "Bash(node -e \"const fs=require\\('fs'\\);['C:/EduHub/src/pages/About.jsx','C:/EduHub/src/pages/Privacy.jsx','C:/EduHub/src/pages/Terms.jsx'].forEach\\(f=>{try{const s=fs.statSync\\(f\\);console.log\\('OK:',f,'size:',s.size\\);}catch\\(e\\){console.log\\('MISSING:',f\\);}}\\);\")",
+      "Bash(find /c/EduHub/src -type f \\\\\\( -name \"*.jsx\" -o -name \"*.js\" \\\\\\) -exec sed -i 's/#002366/var\\(--color-rust\\)/g' {} \\\\;)",
+      "Bash(find src *)",
+      "Bash(awk '/^function Bullets/{found=1} found{print NR\": \"$0}' src/pages/Privacy.jsx)"
+    ]
+  }
+}

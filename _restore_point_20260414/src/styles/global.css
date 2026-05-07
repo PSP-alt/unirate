@@ -1,0 +1,58 @@
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    background-color: #f8f8fa;
+    color: #0f0f0f;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+  }
+
+  /* Tap highlight off */
+  button, a { -webkit-tap-highlight-color: transparent; }
+
+  /* Active press micro-feedback */
+  button:not(:disabled):active { transform: scale(0.97); }
+}
+
+/* ── Keyframes ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Animation utilities ── */
+.animate-fade-up   { animation: fadeUp  0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-in   { animation: fadeIn  0.4s  ease-out both; }
+.animate-scale-in  { animation: scaleIn 0.4s  cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-page-in   { animation: fadeUp  0.4s  cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* ── Scroll-reveal base state ── */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.55s cubic-bezier(0.16,1,0.3,1), transform 0.55s cubic-bezier(0.16,1,0.3,1); }
+.reveal.in-view { opacity: 1; transform: translateY(0); }

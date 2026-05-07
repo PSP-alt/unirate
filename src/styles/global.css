@@ -1,0 +1,369 @@
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  /* ── Smooth scroll globally ── */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  /* ── Serif italic для акцентных слов/заголовков Unirate ── */
+  .font-display, .font-serif {
+    font-family: 'Fraunces', Georgia, serif;
+    font-feature-settings: "ss01";
+  }
+
+  /* ── Uppercase label с широким трекингом ── */
+  .label-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-rust);
+  }
+  .label-muted {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  /* ── Rating bar: 10 делений ── */
+  .bar-segments {
+    display: flex;
+    gap: 3px;
+  }
+  .bar-seg {
+    flex: 1;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--color-sepia);
+    transition: background 0.3s ease;
+  }
+  .bar-seg.on {
+    background: var(--color-rust);
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+    overflow: hidden;
+    max-width: 1em;
+    max-height: 1em;
+  }
+
+  /* ══════════════════════════════════════════════
+     SMOOTH INTERACTION SYSTEM
+     Apple-inspired micro-interactions
+  ══════════════════════════════════════════════ */
+
+  /* ── Tap highlight off ── */
+  button, a { -webkit-tap-highlight-color: transparent; }
+
+  /* ── Buttons & interactive controls: smooth transition baseline ── */
+  button, [role="button"], summary {
+    transition-property: transform, background-color, border-color, color, box-shadow, opacity;
+    transition-duration: 0.25s;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ── Button press: spring-back ── */
+  button:not(:disabled):active,
+  [role="button"]:not(:disabled):active {
+    transform: scale(0.965);
+    transition-duration: 0.08s;
+    transition-timing-function: cubic-bezier(0.3, 0, 0.8, 0.15);
+  }
+
+  /* ── Inputs & textareas: smooth focus ── */
+  input, textarea, select {
+    transition-property: border-color, box-shadow, background-color;
+    transition-duration: 0.3s;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ── Custom text selection ── */
+  ::selection {
+    background: var(--color-rust);
+    color: #FFFDF7;
+  }
+  ::-moz-selection {
+    background: var(--color-rust);
+    color: #FFFDF7;
+  }
+
+  /* ── Smooth focus-visible ring (keyboard only, not links/cards) ── */
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  summary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-cream),
+                0 0 0 4px var(--color-rust);
+    transition: box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(184, 74, 30, 0.15);
+    transition: box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ── Checkbox/Radio: smooth tick ── */
+  input[type="checkbox"],
+  input[type="radio"] {
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  /* ── SVG icons inside buttons: inherit transition ── */
+  button svg, [role="button"] svg {
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                color 0.25s ease;
+  }
+
+  /* ── Disabled elements: smooth fade ── */
+  button:disabled, [role="button"]:disabled {
+    transition: opacity 0.3s ease;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   KEYFRAMES
+══════════════════════════════════════════════ */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes blurFadeUp {
+  from { opacity: 0; filter: blur(8px); transform: translateY(22px); }
+  to   { opacity: 1; filter: blur(0);   transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)      scale(1); }
+}
+
+@keyframes springScale {
+  0%   { opacity: 0; transform: scale(0.88); }
+  60%  {             transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes gentlePulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.6; }
+}
+
+@keyframes ripple {
+  0%   { transform: scale(0); opacity: 0.35; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.8); }
+  50%  { transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes tooltipIn {
+  from { opacity: 0; transform: translateY(4px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+@keyframes barFillIn {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ══════════════════════════════════════════════
+   ANIMATION UTILITIES
+══════════════════════════════════════════════ */
+
+.animate-fade-up       { animation: fadeUp      0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-in       { animation: fadeIn      0.4s  ease-out both; }
+.animate-scale-in      { animation: scaleIn     0.4s  cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-page-in       { animation: fadeUp      0.4s  cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-blur-fade-up  { animation: blurFadeUp  0.65s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-slide-down    { animation: slideDown   0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-spring-scale  { animation: springScale 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.animate-slide-up      { animation: slideUp     0.32s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-pop-in        { animation: popIn       0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.animate-tooltip-in    { animation: tooltipIn   0.18s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-shimmer       { animation: shimmer     1.8s  linear infinite; background-size: 200% 100%; }
+.animate-gentle-pulse  { animation: gentlePulse 2s    ease-in-out infinite; }
+
+/* ── Stagger delay utilities ── */
+.delay-1 { animation-delay:  80ms; }
+.delay-2 { animation-delay: 160ms; }
+.delay-3 { animation-delay: 240ms; }
+.delay-4 { animation-delay: 320ms; }
+.delay-5 { animation-delay: 400ms; }
+.delay-6 { animation-delay: 480ms; }
+
+/* ══════════════════════════════════════════════
+   INTERACTIVE COMPONENT STYLES
+══════════════════════════════════════════════ */
+
+/* ── Card lift — Apple spring hover ── */
+.card-lift {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.card-lift:hover {
+  transform: translateY(-5px) scale(1.015);
+  box-shadow: 0 16px 40px rgba(0, 35, 102, 0.10),
+              0  4px 16px rgba(0, 0, 0, 0.06);
+}
+.card-lift:active {
+  transform: translateY(-2px) scale(1.005);
+  transition-duration: 0.12s;
+}
+
+/* ── Subtle card hover (for table rows, list items) ── */
+.card-hover {
+  transition: background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.3s ease;
+}
+
+/* ── Button glow on hover (for primary CTA) ── */
+.btn-glow {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.3s ease;
+}
+.btn-glow:hover {
+  box-shadow: 0 4px 20px rgba(184, 74, 30, 0.35),
+              0 0  60px rgba(184, 74, 30, 0.08);
+}
+.btn-glow:active {
+  transform: scale(0.965);
+  transition-duration: 0.08s;
+}
+
+/* ── Icon spin (for refresh, loading icons) ── */
+.icon-spin {
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Smooth expand/collapse ── */
+.collapse-smooth {
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity    0.3s  ease;
+}
+
+/* ── Scroll-reveal ── */
+.reveal {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.55s cubic-bezier(0.16,1,0.3,1),
+              transform 0.55s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.in-view { opacity: 1; transform: translateY(0); }
+
+/* ── Scroll-reveal with blur ── */
+.reveal-blur {
+  opacity: 0; filter: blur(6px); transform: translateY(18px);
+  transition: opacity   0.6s cubic-bezier(0.16,1,0.3,1),
+              filter    0.6s cubic-bezier(0.16,1,0.3,1),
+              transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal-blur.in-view { opacity: 1; filter: blur(0); transform: translateY(0); }
+
+/* ── Hide scrollbar but keep scrollability ── */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Custom scrollbar (thin, earthy) ── */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-sepia-2) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-sepia-2);
+  border-radius: 9999px;
+  transition: background 0.3s ease;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* ── Bar fill (progress bars animate from left) ── */
+.bar-fill-in {
+  transform-origin: left center;
+  animation: barFillIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ══════════════════════════════════════════════
+   PREFER REDUCED MOTION
+   Respect users who disable animations.
+══════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  html { scroll-behavior: auto; }
+  .card-lift:hover { transform: none; }
+  .btn-glow:hover { box-shadow: none; }
+}
