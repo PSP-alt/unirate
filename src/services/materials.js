@@ -33,10 +33,16 @@ import { db, storage } from './firebase'
 /* ── Загрузить файл в Storage с таймаутом ── */
 export function uploadFile(file, path, onProgress) {
   return new Promise((resolve, reject) => {
-    /* Таймаут на 2 минуты */
+    /* Таймаут 30 секунд — если нет ответа, скорее всего неверный bucket
+       или Storage Rules не задеплоены */
     const timeout = setTimeout(() => {
-      reject(new Error('Время загрузки истекло'))
-    }, 120000)
+      const err = new Error(
+        'Сервер не отвечает. Проверьте, что Firebase Storage Rules опубликованы ' +
+        'и VITE_FIREBASE_STORAGE_BUCKET в .env указан верно.'
+      )
+      err.code = 'storage/timeout'
+      reject(err)
+    }, 30000)
 
     try {
       const storageRef = ref(storage, path)

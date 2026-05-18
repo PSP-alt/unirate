@@ -164,14 +164,26 @@ export default function MaterialUpload() {
 
       setSuccess(true)
     } catch (err) {
-      console.error('[MaterialUpload]', err)
-      if (err.code === 'storage/unauthorized') {
-        setError('Нет прав на загрузку. Убедитесь, что аккаунт активирован администратором.')
-      } else if (err.code === 'storage/canceled') {
-        setError('Загрузка отменена.')
-      } else {
-        setError(err.message || 'Не удалось загрузить материал')
-      }
+      console.error('[MaterialUpload] code:', err.code, 'message:', err.message)
+      const msg = (() => {
+        switch (err.code) {
+          case 'storage/unauthorized':
+            return 'Нет прав на загрузку файлов. Убедитесь, что Firebase Storage Rules опубликованы в Firebase Console (Storage → Rules).'
+          case 'storage/canceled':
+            return 'Загрузка отменена.'
+          case 'storage/quota-exceeded':
+            return 'Превышена квота Firebase Storage.'
+          case 'storage/invalid-checksum':
+            return 'Файл повреждён при передаче. Попробуйте ещё раз.'
+          case 'storage/retry-limit-exceeded':
+            return 'Превышен лимит попыток. Проверьте интернет-соединение.'
+          case 'storage/timeout':
+            return err.message
+          default:
+            return err.message || 'Не удалось загрузить материал'
+        }
+      })()
+      setError(msg)
     } finally {
       setUploading(false)
     }
