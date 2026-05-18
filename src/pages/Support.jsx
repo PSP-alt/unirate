@@ -125,7 +125,7 @@ export default function Support() {
               Обратная связь
             </span>
           </div>
-          <h1 className="font-display italic text-[44px] md:text-[52px] leading-[1.0] tracking-[-0.02em] text-[var(--color-ink)]">
+          <h1 className="font-display italic text-[32px] sm:text-[44px] md:text-[52px] leading-[1.0] tracking-[-0.02em] text-[var(--color-ink)]">
             Поддержка
           </h1>
           <p className="mt-3 text-[14px] text-[var(--color-muted)] max-w-md leading-relaxed">
@@ -143,7 +143,7 @@ export default function Support() {
           {/* Тип обращения */}
           <div className="px-6 pt-6 pb-4">
             <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-[var(--color-muted)] mb-3">Тип обращения</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {Object.entries(TYPE_META).map(([key, meta]) => {
                 const active = type === key
                 return (
@@ -151,7 +151,7 @@ export default function Support() {
                     type="button"
                     key={key}
                     onClick={() => setType(key)}
-                    className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${
+                    className={`flex items-start gap-3 p-3 sm:p-4 rounded-xl border-2 text-left transition-all ${
                       active
                         ? 'border-[var(--color-rust)] bg-[var(--color-rust-wash)]'
                         : 'border-[var(--color-sepia)] hover:border-[var(--color-rust)]/30 hover:bg-[var(--color-paper-2)]/30'

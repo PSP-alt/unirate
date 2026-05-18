@@ -307,9 +307,8 @@ export default function About() {
           {/* Eyebrow */}
           <div className="label-eyebrow mb-8">СПбГУПТД · UniRate · О проекте</div>
 
-          <h1 className="font-display text-[56px] md:text-[84px] leading-[0.97] tracking-[-0.02em] text-[#F4EBDB] max-w-3xl">
-            Платформа,<br />
-            которую хотели<br />
+          <h1 className="font-display text-[36px] sm:text-[52px] md:text-[84px] leading-[0.97] tracking-[-0.02em] text-[#F4EBDB] max-w-3xl">
+            Платформа, которую хотели{' '}
             <span className="italic text-[var(--color-rust)]">студенты.</span>
           </h1>
 
@@ -343,13 +342,13 @@ export default function About() {
               <div className="h-px flex-1 bg-[#3A322A]" />
             </div>
 
-            <div className="grid grid-cols-3 gap-8 max-w-md">
+            <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-md">
               {STAT_DEFS.map(({ key, label, sub }) => (
                 <div key={key}>
                   {counts[key] === null ? (
                     <div className="w-12 h-9 bg-[#3A322A] rounded-lg animate-pulse mb-1" />
                   ) : (
-                    <p className="font-display text-[44px] leading-none text-[var(--color-rust)]">
+                    <p className="font-display text-[32px] sm:text-[44px] leading-none text-[var(--color-rust)]">
                       {counts[key]}
                     </p>
                   )}
@@ -371,10 +370,8 @@ export default function About() {
           {/* Текст */}
           <div>
             <div className="label-eyebrow mb-5">Наша миссия</div>
-            <h2 className="font-display text-[40px] md:text-[52px] leading-[1.04] tracking-[-0.02em] text-[var(--color-ink)]">
-              Помочь студентам<br />
-              принимать <span className="italic text-[var(--color-rust)]">осознанные</span><br />
-              решения.
+            <h2 className="font-display text-[28px] sm:text-[36px] md:text-[52px] leading-[1.04] tracking-[-0.02em] text-[var(--color-ink)]">
+              Помочь студентам принимать <span className="italic text-[var(--color-rust)]">осознанные</span> решения.
             </h2>
             <p className="text-[var(--color-muted)] mt-6 leading-relaxed">
               UniRate создан студентами СПбГУПТД для студентов СПбГУПТД. Мы верим,
@@ -430,9 +427,8 @@ export default function About() {
           <div className="flex flex-wrap items-end justify-between gap-6 mb-14">
             <div>
               <div className="label-eyebrow mb-4">Как это работает</div>
-              <h2 className="font-display text-[40px] md:text-[52px] leading-[1.04] tracking-[-0.02em] text-[#F4EBDB]">
-                Три шага до<br />
-                <span className="italic text-[var(--color-rust)]">честного отзыва.</span>
+              <h2 className="font-display text-[28px] sm:text-[36px] md:text-[52px] leading-[1.04] tracking-[-0.02em] text-[#F4EBDB]">
+                Три шага до <span className="italic text-[var(--color-rust)]">честного отзыва.</span>
               </h2>
             </div>
             <span className="font-mono text-xs text-[#4A4038] tracking-widest select-none">01 — 03</span>
@@ -463,9 +459,8 @@ export default function About() {
         <div className="flex flex-wrap items-end justify-between gap-6 mb-14">
           <div>
             <div className="label-eyebrow mb-4">Команда</div>
-            <h2 className="font-display text-[40px] md:text-[52px] leading-[1.04] tracking-[-0.02em] text-[var(--color-ink)]">
-              Сделано студентами<br />
-              <span className="italic text-[var(--color-rust)]">для студентов.</span>
+            <h2 className="font-display text-[28px] sm:text-[36px] md:text-[52px] leading-[1.04] tracking-[-0.02em] text-[var(--color-ink)]">
+              Сделано студентами <span className="italic text-[var(--color-rust)]">для студентов.</span>
             </h2>
           </div>
           <p className="max-w-xs text-[var(--color-muted)] text-sm leading-relaxed">
@@ -525,7 +520,7 @@ export default function About() {
 
           <div className="mb-14">
             <div className="label-eyebrow mb-4">Контакты</div>
-            <h2 className="font-display text-[40px] md:text-[52px] leading-[1.04] tracking-[-0.02em] text-[#F4EBDB]">
+            <h2 className="font-display text-[28px] sm:text-[36px] md:text-[52px] leading-[1.04] tracking-[-0.02em] text-[#F4EBDB]">
               Свяжитесь с нами.
             </h2>
             <p className="text-[#B8A999] mt-4 text-base max-w-md">

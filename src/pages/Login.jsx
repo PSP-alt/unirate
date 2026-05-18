@@ -48,7 +48,7 @@ export default function Login() {
       <div className="w-full max-w-md">
 
         {/* Card */}
-        <div className="bg-[var(--color-paper)] rounded-3xl shadow-sm border border-[var(--color-sepia)] p-8">
+        <div className="bg-[var(--color-paper)] rounded-2xl sm:rounded-3xl shadow-sm border border-[var(--color-sepia)] p-5 sm:p-8">
 
           {/* Header */}
           <div className="mb-8">

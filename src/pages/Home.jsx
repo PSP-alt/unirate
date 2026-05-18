@@ -197,17 +197,16 @@ export default function Home() {
               <span>С модерацией</span>
             </div>
 
-            <h1 className="font-display text-[64px] md:text-[88px] leading-[0.98] tracking-[-0.02em] text-[#F4EBDB]">
+            <h1 className="font-display text-[40px] sm:text-[52px] md:text-[76px] leading-[1.05] tracking-[-0.025em] text-[#F4EBDB]">
               {user ? (
                 <>
-                  С возвращением,<br />
-                  <span className="italic text-[var(--color-rust)]">{userData?.firstName || 'друг'}.</span>
+                  <span className="block whitespace-nowrap">С возвращением,</span>
+                  <span className="block italic text-[var(--color-rust)]">{userData?.firstName || 'друг'}.</span>
                 </>
               ) : (
                 <>
-                  Честный<br />
-                  разговор<br />
-                  о <span className="italic text-[var(--color-rust)]">преподавании.</span>
+                  <span className="block whitespace-nowrap">Честный разговор</span>
+                  <span className="block">о <span className="italic text-[var(--color-rust)]">преподавании.</span></span>
                 </>
               )}
             </h1>
@@ -284,8 +283,8 @@ export default function Home() {
         <div className="flex flex-wrap items-end justify-between gap-8 mb-14">
           <div className="max-w-2xl">
             <div className="label-eyebrow mb-4">Как это работает</div>
-            <h2 className="font-display text-[40px] md:text-[52px] leading-[1.05] tracking-[-0.02em] text-[var(--color-ink)]">
-              Четыре шага от вопроса<br />
+            <h2 className="font-display text-[28px] sm:text-[36px] md:text-[52px] leading-[1.05] tracking-[-0.02em] text-[var(--color-ink)]">
+              Четыре шага от вопроса{' '}
               <span className="italic text-[var(--color-rust)]">«как у меня на курсе?»</span> до ответа.
             </h2>
           </div>
@@ -333,13 +332,13 @@ export default function Home() {
          ═════════════════════════════════════════════ */}
       {!user && (
         <section className="max-w-7xl mx-auto px-6 md:px-12 pb-24">
-          <div className="rounded-[32px] bg-[#1A1613] text-[#F4EBDB] p-10 md:p-16 relative overflow-hidden">
+          <div className="rounded-[24px] sm:rounded-[32px] bg-[#1A1613] text-[#F4EBDB] p-6 sm:p-10 md:p-16 relative overflow-hidden">
             <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[var(--color-rust)]/20 blur-3xl" />
             <div className="relative grid md:grid-cols-[1.5fr_1fr] gap-8 items-end">
               <div>
                 <div className="label-eyebrow mb-4" style={{ color: 'var(--color-rust-soft)' }}>Готовы говорить по делу?</div>
-                <h3 className="font-display text-[40px] md:text-[56px] leading-[1.02] tracking-[-0.02em]">
-                  Вход занимает минуту.<br />
+                <h3 className="font-display text-[28px] sm:text-[36px] md:text-[56px] leading-[1.02] tracking-[-0.02em]">
+                  Вход занимает минуту.{' '}
                   <span className="italic text-[var(--color-rust)]">Разговор — всю сессию.</span>
                 </h3>
               </div>
@@ -523,9 +522,9 @@ function FeaturedCard({ featured }) {
 function CriterionRow({ label, score }) {
   const filled = Math.round(score)
   return (
-    <div className="grid grid-cols-[1fr_auto_2.5rem] items-center gap-3">
-      <span className="text-[13px] text-[#E6D9C9] truncate">{label}</span>
-      <div className="bar-segments w-[148px]" style={{ '--seg': 'var(--color-sepia-2)' }}>
+    <div className="grid grid-cols-[1fr_auto_2.5rem] items-center gap-2 sm:gap-3">
+      <span className="text-[12px] sm:text-[13px] text-[#E6D9C9] truncate">{label}</span>
+      <div className="bar-segments w-[100px] sm:w-[148px]" style={{ '--seg': 'var(--color-sepia-2)' }}>
         {Array.from({ length: 10 }).map((_, i) => (
           <span key={i} className={`bar-seg ${i < filled ? 'on' : ''}`} style={{ background: i < filled ? 'var(--color-rust)' : '#3A322A' }} />
         ))}
@@ -561,7 +560,7 @@ function Stat({ value, label, format, accent }) {
 
   return (
     <div>
-      <div className="font-display text-[44px] md:text-[56px] leading-none tracking-[-0.02em] text-[#F4EBDB]">
+      <div className="font-display text-[36px] sm:text-[44px] md:text-[56px] leading-none tracking-[-0.02em] text-[#F4EBDB]">
         {content}
       </div>
       <div className="mt-2 text-[11px] font-medium tracking-[0.18em] uppercase text-[#B8A999]">
@@ -601,13 +600,13 @@ function StepCard({ step, delay }) {
    ──────────────────────────────────────────────── */
 function AudienceCard({ role, title, bullets, cta, secondary }) {
   return (
-    <div className={`rounded-[28px] p-10 flex flex-col ${
+    <div className={`rounded-[24px] sm:rounded-[28px] p-6 sm:p-10 flex flex-col ${
       secondary
         ? 'bg-[var(--color-paper-2)] border border-[var(--color-sepia-2)]'
         : 'bg-[var(--color-paper)] border border-[var(--color-sepia)]'
     }`}>
       <span className="label-eyebrow mb-6">{role}</span>
-      <h3 className="font-display text-[34px] md:text-[42px] leading-[1.05] tracking-[-0.02em] text-[var(--color-ink)] mb-8">
+      <h3 className="font-display text-[26px] sm:text-[34px] md:text-[42px] leading-[1.05] tracking-[-0.02em] text-[var(--color-ink)] mb-8">
         {title}
       </h3>
       <ul className="space-y-3 mb-10 flex-1">

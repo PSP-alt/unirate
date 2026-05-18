@@ -144,9 +144,9 @@ export default function Materials() {
         <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-24 pb-16">
           <div className="label-eyebrow mb-6">Учебная база · Поделиться знанием</div>
 
-          <h1 className="font-display text-[56px] md:text-[72px] leading-[1.0] tracking-[-0.02em] text-[#F4EBDB] mb-8">
-            <span className="italic text-[var(--color-rust)]">Материалы</span><br />
-            для глубокого чтения.
+          <h1 className="font-display text-[36px] sm:text-[48px] md:text-[72px] leading-[1.0] tracking-[-0.02em] text-[#F4EBDB] mb-8">
+            <span className="italic text-[var(--color-rust)]">Материалы</span>{' '}
+            <span className="sm:block">для глубокого чтения.</span>
           </h1>
 
           <p className="text-[15px] leading-relaxed text-[#B8A999] max-w-lg mb-10">
@@ -188,11 +188,11 @@ export default function Materials() {
 
       {/* ── Filters ── */}
       <div className="sticky top-0 z-30 bg-[#1A1613]/95 backdrop-blur-xl border-y border-[#3A322A]">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex flex-wrap items-center gap-3">
-          <div className="flex gap-1 p-1 bg-[#24201C] rounded-full border border-[#3A322A] overflow-x-auto flex-shrink-0">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-3 md:py-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <div className="flex gap-1 p-1 bg-[#24201C] rounded-full border border-[#3A322A] overflow-x-auto no-scrollbar flex-shrink-0">
             {FILE_TYPES.map(t => (
               <button key={t.id} onClick={() => { setTypeFilter(t.id); setPage(12) }}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+                className={`px-3 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-colors ${
                   typeFilter === t.id
                     ? 'bg-[var(--color-rust)] text-[#FFFDF7]'
                     : 'text-[#B8A999] hover:text-[#F4EBDB]'
@@ -202,24 +202,26 @@ export default function Materials() {
             ))}
           </div>
 
-          <div className="flex-1" />
+          <div className="hidden sm:block flex-1" />
 
-          <div className="flex gap-1 p-1 bg-[#24201C] rounded-full border border-[#3A322A]">
-            {SORT_OPTIONS.map(s => (
-              <button key={s.id} onClick={() => setSort(s.id)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-                  sort === s.id
-                    ? 'bg-[var(--color-rust)] text-[#FFFDF7]'
-                    : 'text-[#B8A999] hover:text-[#F4EBDB]'
-                }`}>
-                {s.label}
-              </button>
-            ))}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex gap-1 p-1 bg-[#24201C] rounded-full border border-[#3A322A]">
+              {SORT_OPTIONS.map(s => (
+                <button key={s.id} onClick={() => setSort(s.id)}
+                  className={`px-3 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-colors ${
+                    sort === s.id
+                      ? 'bg-[var(--color-rust)] text-[#FFFDF7]'
+                      : 'text-[#B8A999] hover:text-[#F4EBDB]'
+                  }`}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+
+            <span className="text-[11px] tracking-[0.15em] uppercase text-[#8B827A] hidden sm:block">
+              {filtered.length} найдено
+            </span>
           </div>
-
-          <span className="text-[11px] tracking-[0.15em] uppercase text-[#8B827A] hidden sm:block">
-            {filtered.length} найдено
-          </span>
         </div>
       </div>
 

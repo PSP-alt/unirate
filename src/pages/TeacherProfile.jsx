@@ -534,7 +534,7 @@ export default function TeacherProfile() {
     <div className="min-h-screen bg-[#1A1613] pt-20">
       <div className="max-w-5xl mx-auto px-6 space-y-6">
         <div className="h-56 bg-[#24201C] rounded-3xl animate-pulse" />
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {Array.from({length:4}).map((_,i)=>(
             <div key={i} className="h-24 bg-[#24201C] rounded-2xl animate-pulse"/>
           ))}
@@ -614,15 +614,15 @@ export default function TeacherProfile() {
         </Link>
 
         {/* ══ HERO CARD (Unirate) ══ */}
-        <div className="rounded-[28px] bg-[#24201C] border border-[#3A322A] p-8 md:p-10 mb-8 animate-fade-up">
-          <div className="grid md:grid-cols-[1.1fr_1fr] gap-10">
+        <div className="rounded-[20px] sm:rounded-[28px] bg-[#24201C] border border-[#3A322A] p-4 sm:p-8 md:p-10 mb-8 animate-fade-up">
+          <div className="grid md:grid-cols-[1.1fr_1fr] gap-8 md:gap-10">
 
             {/* Левая колонка — аватар и описание */}
-            <div className="flex gap-6">
+            <div className="flex gap-4 sm:gap-6">
               {/* Avatar */}
               <div className="relative flex-shrink-0">
                 <div
-                  className={`w-[104px] h-[104px] rounded-full overflow-hidden bg-[#3A322A] border border-[#3A322A] flex items-center justify-center ${isOwn ? 'cursor-pointer group' : ''}`}
+                  className={`w-[72px] h-[72px] sm:w-[104px] sm:h-[104px] rounded-full overflow-hidden bg-[#3A322A] border border-[#3A322A] flex items-center justify-center ${isOwn ? 'cursor-pointer group' : ''}`}
                   onClick={() => isOwn && fileRef.current?.click()}
                 >
                   {teacher.avatarUrl ? (
@@ -651,7 +651,7 @@ export default function TeacherProfile() {
                   <div className="label-eyebrow mb-3">{teacher.disciplines[0]}</div>
                 )}
 
-                <h1 className="font-display text-[34px] md:text-[40px] leading-[1.05] tracking-[-0.02em] text-[#F4EBDB] mb-4">
+                <h1 className="font-display text-[24px] sm:text-[34px] md:text-[40px] leading-[1.05] tracking-[-0.02em] text-[#F4EBDB] mb-4">
                   {fullName || 'Без имени'}
                 </h1>
 
@@ -730,10 +730,10 @@ export default function TeacherProfile() {
               {/* Big rating */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-baseline gap-2">
-                  <span className="font-display text-[72px] leading-none tracking-[-0.02em] text-[#F4EBDB]">
+                  <span className="font-display text-[52px] sm:text-[72px] leading-none tracking-[-0.02em] text-[#F4EBDB]">
                     {avgRating > 0 ? avgRating.toFixed(1).replace('.', ',') : '—'}
                   </span>
-                  <span className="font-display text-[28px] text-[#8B827A]">/ 10</span>
+                  <span className="font-display text-[20px] sm:text-[28px] text-[#8B827A]">/ 10</span>
                 </div>
                 <div className="text-right mt-3">
                   <div className="label-eyebrow">Средний рейтинг</div>
@@ -775,9 +775,9 @@ export default function TeacherProfile() {
                     const avg = Number(c.avg) || 0
                     const filled = Math.round(avg)
                     return (
-                      <div key={c.key} className="grid grid-cols-[1fr_auto_2rem] items-center gap-3">
-                        <span className="text-[12px] text-[#E6D9C9] truncate">{c.label}</span>
-                        <div className="bar-segments w-[120px]">
+                      <div key={c.key} className="grid grid-cols-[1fr_auto_2rem] items-center gap-2 sm:gap-3">
+                        <span className="text-[11px] sm:text-[12px] text-[#E6D9C9] truncate">{c.label}</span>
+                        <div className="bar-segments w-[80px] sm:w-[120px]">
                           {Array.from({ length: 10 }).map((_, i) => (
                             <span key={i} className="bar-seg" style={{
                               background: i < filled ? 'var(--color-rust)' : '#3A322A'
@@ -890,7 +890,7 @@ export default function TeacherProfile() {
         )}
 
         {/* ══ TABS ══ */}
-        <div className="flex gap-1 p-1 bg-[#24201C] border border-[#3A322A] rounded-full mb-8 w-fit overflow-x-auto">
+        <div className="flex gap-1 p-1 bg-[#24201C] border border-[#3A322A] rounded-full mb-8 w-full sm:w-fit overflow-x-auto no-scrollbar">
           {[
             { id: 'rating',    icon: 'star',     label: 'Рейтинг'   },
             { id: 'reviews',   icon: 'chat',     label: 'Отзывы'    },
@@ -898,7 +898,7 @@ export default function TeacherProfile() {
             ...(isOwn ? [{ id: 'settings', icon: 'settings', label: 'Настройки' }] : []),
           ].map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-[13px] font-semibold whitespace-nowrap transition-colors ${
                 tab === t.id
                   ? 'bg-[var(--color-rust)] text-[#FFFDF7]'
                   : 'text-[#B8A999] hover:text-[#F4EBDB]'

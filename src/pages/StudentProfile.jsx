@@ -427,13 +427,13 @@ export default function StudentProfile() {
         )}
 
         {/* ═══════════ ВЕРХНЯЯ ПОЛОСКА ═══════════ */}
-        <div className="flex items-center justify-between mb-5 text-[11px] tracking-[0.18em] uppercase text-[#8B827A]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-5 text-[11px] tracking-[0.18em] uppercase text-[#8B827A]">
           <span>Личный формуляр &nbsp;·&nbsp; <span className="transition-colors" style={{ color: theme.accent }}>{profileId}</span></span>
-          <span>На платформе {daysSinceShort(userData.createdAt)} · обновлено {updatedAgo === 0 ? 'сегодня' : updatedAgo === 1 ? 'вчера' : `${updatedAgo} дн. назад`}</span>
+          <span className="hidden sm:inline">На платформе {daysSinceShort(userData.createdAt)} · обновлено {updatedAgo === 0 ? 'сегодня' : updatedAgo === 1 ? 'вчера' : `${updatedAgo} дн. назад`}</span>
         </div>
 
         {/* ═══════════ ГЛАВНАЯ КАРТОЧКА ═══════════ */}
-        <div className="relative rounded-[24px] border border-[#3A322A] bg-[#24201C] p-6 md:p-8 animate-fade-up overflow-hidden">
+        <div className="relative rounded-[20px] sm:rounded-[24px] border border-[#3A322A] bg-[#24201C] p-4 sm:p-6 md:p-8 animate-fade-up overflow-hidden">
 
           {/* Градиентный аксан сверху — в цвете выбранной темы */}
           <div
@@ -493,7 +493,7 @@ export default function StudentProfile() {
             {/* ── Центр: имя, мета, био, дисциплины ── */}
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-3 mb-3">
-                <h1 className="font-display italic text-[38px] md:text-[46px] leading-[1.05] tracking-[-0.02em] text-[#F4EBDB]">
+                <h1 className="font-display italic text-[28px] sm:text-[38px] md:text-[46px] leading-[1.05] tracking-[-0.02em] text-[#F4EBDB]">
                   {displayName}
                 </h1>
                 {userData.isAnonymousProfile !== false && userData.nickname && (
@@ -631,7 +631,7 @@ export default function StudentProfile() {
               <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[var(--profile-accent)] mb-3">
                 Путь на платформе
               </p>
-              <h2 className="font-display italic text-[40px] leading-[1] tracking-[-0.02em] text-[#F4EBDB] mb-2">
+              <h2 className="font-display italic text-[32px] sm:text-[40px] leading-[1] tracking-[-0.02em] text-[#F4EBDB] mb-2">
                 {currentLevel.label}
               </h2>
               <p className="text-sm text-[#B8A999] mb-5">
@@ -807,7 +807,7 @@ export default function StudentProfile() {
                 Личные данные
               </p>
               <form onSubmit={saveProfile} className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[11px] font-semibold tracking-wider uppercase text-[#8B827A] mb-1.5">Имя</label>
                     <input value={form.firstName} onChange={e=>setForm(f=>({...f,firstName:e.target.value}))} className={inputCls} placeholder="Иван" />
@@ -937,7 +937,7 @@ function ProfileStat({ value, label, accent }) {
   return (
     <div>
       <p
-        className="font-display italic text-[40px] leading-[1] tracking-[-0.02em] mb-1.5 transition-colors"
+        className="font-display italic text-[28px] sm:text-[40px] leading-[1] tracking-[-0.02em] mb-1.5 transition-colors"
         style={{ color: accent || 'var(--color-rust)' }}
       >
         {value}

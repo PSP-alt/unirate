@@ -305,11 +305,11 @@ export default function Register() {
               </div>
             </div>
 
-            <div className="bg-[var(--color-paper)] rounded-3xl shadow-sm border border-[var(--color-sepia)] p-8">
+            <div className="bg-[var(--color-paper)] rounded-2xl sm:rounded-3xl shadow-sm border border-[var(--color-sepia)] p-5 sm:p-8">
               <form onSubmit={handleSubmit} className="space-y-4">
 
                 {/* Name row */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-[var(--color-ink-2)] uppercase tracking-wide mb-1.5">Имя</label>
                     <input type="text" value={form.firstName} onChange={set('firstName')} required placeholder="Иван" className={inputClass} />
@@ -390,7 +390,7 @@ export default function Register() {
                 {/* ── Teacher fields ── */}
                 {role === 'teacher' && (
                   <div className="border-t border-[var(--color-sepia)] pt-4 space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-semibold text-[var(--color-ink-2)] uppercase tracking-wide mb-1.5">Должность</label>
                         <input type="text" value={form.position} onChange={set('position')} placeholder="Доцент, профессор..." className={inputClass} />

@@ -12,10 +12,10 @@ export default function Footer() {
           <div className="h-px flex-1 bg-[#3A322A]" />
         </div>
 
-        <div className="grid md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-8 md:gap-10">
 
           {/* Brand */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <Link to="/" className="font-display italic text-[32px] leading-none flex items-baseline">
               <span className="text-[#F4EBDB]">Uni</span>
               <span className="text-[var(--color-rust)]">rate</span>
