@@ -398,6 +398,7 @@ export async function unblockUser(userId) {
 /* ── Мягкое удаление аккаунта (Firebase Auth удалить с клиента нельзя) ── */
 export async function deleteUserAccount(userId) {
   try {
+    /* 1. Помечаем пользователя удалённым в коллекции users */
     await updateDoc(doc(db, 'users', userId), {
       isActive:    false,
       isDeleted:   true,
@@ -406,6 +407,23 @@ export async function deleteUserAccount(userId) {
       blockedUntil: null,
       updatedAt:   serverTimestamp(),
     })
+
+    /* 2. Если пользователь — преподаватель, помечаем его документ
+          в коллекции teachers тоже как удалённый.
+          Если документа нет — ошибку молча игнорируем. */
+    try {
+      const teacherRef = doc(db, 'teachers', userId)
+      const teacherSnap = await getDoc(teacherRef)
+      if (teacherSnap.exists()) {
+        await updateDoc(teacherRef, {
+          isDeleted: true,
+          updatedAt: serverTimestamp(),
+        })
+      }
+    } catch {
+      /* Не критично — профиль преподавателя мог не существовать */
+    }
+
     return { error: null }
   } catch {
     return { error: 'Не удалось удалить аккаунт' }

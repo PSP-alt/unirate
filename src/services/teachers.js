@@ -63,10 +63,9 @@ export async function getTeachers({
       (a.lastName || '').localeCompare(b.lastName || '', 'ru'),
     )
 
-    /* Только активные (одобренные администратором) —
-       проверяем через коллекцию users */
-    /* Примечание: в реальном проекте стоит хранить isActive
-       прямо в teachers, но пока делаем клиентскую фильтрацию */
+    /* Фильтруем удалённые аккаунты — поле isDeleted: true
+       выставляется в teachers/{uid} при удалении через админ-панель */
+    teachers = teachers.filter((t) => !t.isDeleted)
 
     /* Поиск по имени / дисциплине */
     if (searchQuery) {
