@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { registerUser, logoutUser } from '../services/auth'
-import { createUserDocument, createTeacherDocument, checkStudentIdUnique, CURRENT_DOC_VERSION } from '../services/firestore'
+import { createUserDocument, createTeacherDocument, CURRENT_DOC_VERSION } from '../services/firestore'
 import { useAuth } from '../context/AuthContext'
 import { GraduationCap, BookOpen, ArrowLeft, ChevronRight, CheckCircle, AlertCircle, LogIn, CreditCard, UserCheck, LogOut, ShieldCheck, Check } from 'lucide-react'
 
@@ -16,7 +16,6 @@ const TEACHER_TYPES = [
 
 /* Тип ошибки — чтобы разделять «уже зарег.» от прочих */
 const ERR_ALREADY_REGISTERED = 'ALREADY_REGISTERED'
-const ERR_STUDENT_ID_TAKEN   = 'STUDENT_ID_TAKEN'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -83,21 +82,6 @@ export default function Register() {
       setConsentError(true)
       setError('Для регистрации необходимо принять Политику конфиденциальности и Условия использования')
       return
-    }
-
-    /* ── Проверка уникальности студенческого билета ── */
-    if (role === 'student') {
-      if (!form.studentId.trim()) {
-        setError('Введите номер студенческого билета')
-        return
-      }
-      const { taken, error: checkErr } = await checkStudentIdUnique(form.studentId)
-      if (checkErr) { setError(checkErr); return }
-      if (taken) {
-        setErrorType(ERR_STUDENT_ID_TAKEN)
-        setError('Аккаунт с таким номером студенческого билета уже существует')
-        return
-      }
     }
 
     setSubmitting(true)
@@ -354,7 +338,6 @@ export default function Register() {
                           type="text"
                           value={form.studentId}
                           onChange={e => { clearError(); set('studentId')(e) }}
-                          required
                           placeholder="Например: 221-12345"
                           className={inputClass + ' pl-10'}
                         />
@@ -554,21 +537,6 @@ export default function Register() {
                         <LogIn size={15} />
                         Войти в аккаунт
                       </Link>
-                    </div>
-                  ) : errorType === ERR_STUDENT_ID_TAKEN ? (
-                    /* Особый блок: дубль студенческого билета */
-                    <div className="rounded-2xl border border-[var(--color-danger)]/25 bg-[var(--color-danger)]/8 p-4">
-                      <div className="flex items-start gap-3">
-                        <CreditCard size={18} className="text-[var(--color-danger)] mt-0.5 flex-shrink-0" />
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-[var(--color-danger)]">
-                            Этот студенческий билет уже используется
-                          </p>
-                          <p className="text-xs text-[var(--color-ink-2)] mt-0.5 leading-relaxed">
-                            Аккаунт с таким номером уже зарегистрирован. Если вы считаете это ошибкой — обратитесь к администратору.
-                          </p>
-                        </div>
-                      </div>
                     </div>
                   ) : (
                     /* Обычная ошибка */
