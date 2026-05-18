@@ -22,14 +22,6 @@ import {
 } from 'lucide-react'
 
 /* ── Constants ── */
-const FILE_CONFIG = {
-  pdf:  { icon: 'picture_as_pdf', bg: 'bg-red-50',    text: 'text-red-500'    },
-  docx: { icon: 'description',    bg: 'bg-blue-50',   text: 'text-blue-500'   },
-  doc:  { icon: 'description',    bg: 'bg-blue-50',   text: 'text-blue-500'   },
-  mp4:  { icon: 'play_circle',    bg: 'bg-purple-50', text: 'text-purple-500' },
-  pptx: { icon: 'slideshow',      bg: 'bg-orange-50', text: 'text-orange-500' },
-  xlsx: { icon: 'table_chart',    bg: 'bg-green-50',  text: 'text-green-500'  },
-}
 const AVATAR_GRADIENTS = [
   ['#6366f1','#8b5cf6'], ['#3b82f6','#0ea5e9'],
   ['#10b981','#14b8a6'], ['#f59e0b','#ef4444'],
@@ -42,11 +34,6 @@ const TEACHER_TYPE_LABELS = {
   supervisor: 'Научный руководитель',
   universal:  'Преподаватель',
 }
-const TAG_COLORS = [
-  'bg-blue-50 text-blue-700', 'bg-purple-50 text-purple-700',
-  'bg-emerald-50 text-emerald-700', 'bg-amber-50 text-amber-700',
-  'bg-pink-50 text-pink-700', 'bg-indigo-50 text-indigo-700',
-]
 
 const FLAG_REASONS = [
   'Оскорбительный контент',
@@ -820,13 +807,13 @@ export default function TeacherProfile() {
           <div className="mb-6 space-y-2">
             {manipulationAlerts.map((alert, i) => (
               <div key={i} className={`flex items-start gap-3 p-4 rounded-2xl border ${
-                alert.severity === 'high' ? 'bg-red-50 border-red-200' :
-                alert.severity === 'medium' ? 'bg-amber-50 border-amber-200' :
-                'bg-blue-50 border-blue-200'
+                alert.severity === 'high' ? 'bg-red-950/40 border-red-500/30' :
+                alert.severity === 'medium' ? 'bg-amber-950/40 border-amber-500/30' :
+                'bg-blue-950/40 border-blue-500/30'
               }`}>
                 <AlertTriangle size={18} className={
-                  alert.severity === 'high' ? 'text-red-500' :
-                  alert.severity === 'medium' ? 'text-amber-500' : 'text-blue-500'
+                  alert.severity === 'high' ? 'text-red-400 flex-shrink-0 mt-0.5' :
+                  alert.severity === 'medium' ? 'text-amber-400 flex-shrink-0 mt-0.5' : 'text-blue-400 flex-shrink-0 mt-0.5'
                 } />
                 <div>
                   <p className="text-sm font-medium text-[#F4EBDB]">{alert.message}</p>
@@ -1038,7 +1025,7 @@ export default function TeacherProfile() {
                   </h3>
                   <div className="space-y-3">
                     {semesterBreakdown.map((s, i) => {
-                      const isLatest = i === semesterBreakdown.length - 1
+                      const isLatest = i === 0
                       const prev     = semesterBreakdown[i - 1]
                       const delta    = prev ? +(s.avg - prev.avg).toFixed(1) : 0
                       const barColor = s.avg >= 8 ? 'bg-emerald-400' : s.avg >= 6 ? 'bg-blue-400' : s.avg >= 4 ? 'bg-amber-400' : 'bg-red-400'
@@ -1054,7 +1041,7 @@ export default function TeacherProfile() {
                                 </span>
                               )}
                               {isLatest && (
-                                <span className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded-full">Актуальный</span>
+                                <span className="text-[10px] px-1.5 py-0.5 bg-[var(--color-rust)]/20 text-[var(--color-rust)] rounded-full">Актуальный</span>
                               )}
                             </div>
                             <span className="text-xs font-bold text-[#F4EBDB]">
@@ -1113,29 +1100,29 @@ export default function TeacherProfile() {
                       .sort((a,b) => ((b.helpfulVotes||0)-(b.unhelpfulVotes||0)) - ((a.helpfulVotes||0)-(a.unhelpfulVotes||0)))
                       .filter(r => r.positiveComment || r.negativeComment || r.comment)
                       .slice(0,3).map(r => (
-                      <div key={r.id} className="bg-amber-50/50 border border-amber-100 rounded-2xl p-4">
+                      <div key={r.id} className="bg-[#2A2520] border border-[#3A322A] rounded-2xl p-4">
                         <div className="flex items-center gap-2 mb-2">
-                          <div className="flex items-center gap-1 bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                          <div className="flex items-center gap-1 bg-[var(--color-rust)]/20 text-[var(--color-rust)] px-2 py-0.5 rounded-full">
                             <span className="material-symbols-outlined text-[13px]" style={{fontVariationSettings:"'FILL' 1"}}>star</span>
                             <span className="text-xs font-bold">{r.averageScore?.toFixed(1)}</span>
                           </div>
                           <span className="text-xs text-[#B8A999]">{timeAgo(r.createdAt)}</span>
                           {(r.helpfulVotes || 0) > 0 && (
-                            <span className="text-[10px] text-emerald-600 flex items-center gap-0.5 ml-auto">
+                            <span className="text-[10px] text-emerald-400 flex items-center gap-0.5 ml-auto">
                               <ThumbsUp size={10} /> {r.helpfulVotes}
                             </span>
                           )}
                         </div>
                         {r.positiveComment && (
-                          <p className="text-xs text-emerald-700 leading-relaxed line-clamp-2">+ {r.positiveComment}</p>
+                          <p className="text-xs text-emerald-400 leading-relaxed line-clamp-2">+ {r.positiveComment}</p>
                         )}
                         {r.negativeComment && (
-                          <p className="text-xs text-amber-700 leading-relaxed line-clamp-2 mt-1">△ {r.negativeComment}</p>
+                          <p className="text-xs text-amber-400 leading-relaxed line-clamp-2 mt-1">△ {r.negativeComment}</p>
                         )}
                         {!r.positiveComment && !r.negativeComment && r.comment && (
                           <p className="text-xs text-[#B8A999] leading-relaxed line-clamp-3">«{r.comment}»</p>
                         )}
-                        {r.discipline && <p className="text-[10px] text-purple-600 mt-2">{r.discipline}</p>}
+                        {r.discipline && <p className="text-[10px] text-[#B8A999] mt-2">{r.discipline}</p>}
                       </div>
                     ))}
                   </div>

@@ -48,14 +48,19 @@ export default function PrivateRoute({ children, roles }) {
     !userData?.blockReason
   ) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <h2 className="font-heading text-2xl text-accent-blue mb-4">
-          Аккаунт на модерации
-        </h2>
-        <p className="text-text-secondary">
-          Ваш аккаунт ещё не активирован администратором.
-          Пожалуйста, подождите — обычно это занимает до 24 часов.
-        </p>
+      <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center px-4">
+        <div className="max-w-sm text-center">
+          <div className="w-14 h-14 rounded-2xl bg-[var(--color-rust-wash)] flex items-center justify-center mx-auto mb-5">
+            <span className="text-2xl">⏳</span>
+          </div>
+          <h2 className="font-display text-2xl font-bold text-[var(--color-ink)] mb-3">
+            Аккаунт на модерации
+          </h2>
+          <p className="text-sm text-[var(--color-muted)] leading-relaxed">
+            Ваш аккаунт ещё не активирован администратором.
+            Пожалуйста, подождите — обычно это занимает до 24 часов.
+          </p>
+        </div>
       </div>
     )
   }

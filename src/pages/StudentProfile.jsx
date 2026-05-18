@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { updateUserDocument } from '../services/firestore'
+import { updateOwnUserProfile } from '../services/firestore'
 import { getStudentRatings } from '../services/ratings'
 import { getBookmarks } from '../services/bookmarks'
 import { getTeachers } from '../services/teachers'
@@ -246,7 +246,7 @@ export default function StudentProfile() {
 
   async function saveProfile(e) {
     e.preventDefault(); setSaving(true); setSaveMsg('')
-    const { error } = await updateUserDocument(user.uid, {
+    const { error } = await updateOwnUserProfile(user.uid, {
       firstName: form.firstName, lastName: form.lastName, middleName: form.middleName,
       nickname: form.nickname, bio: form.bio, course: Number(form.course),
     })

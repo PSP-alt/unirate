@@ -14,6 +14,7 @@ import {
   ChevronUp,
   CheckCircle,
   Loader2,
+  AlertCircle,
 } from 'lucide-react'
 import { collection, getCountFromServer, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../services/firebase'
@@ -234,7 +235,7 @@ function JoinForm() {
 
               {error && (
                 <div className="flex items-center gap-2 px-4 py-3 bg-[var(--color-danger)]/10 border border-[var(--color-danger)]/20 rounded-xl text-sm text-[var(--color-danger)]">
-                  <span className="material-symbols-outlined text-[16px]">error</span>
+                  <AlertCircle size={16} className="flex-shrink-0" />
                   {error}
                 </div>
               )}

@@ -278,6 +278,27 @@ export default function Admin() {
   async function handleDeleteConfirm() {
     if (!deleteTarget) return
     setDeleteLoading(true)
+
+    if (deleteTarget.type === 'support') {
+      const { error } = await deleteSupportMessage(deleteTarget.id)
+      setDeleteLoading(false)
+      if (error) { toast.error(error); return }
+      setSupportMessages(p => p.filter(m => m.id !== deleteTarget.id))
+      toast.success('Обращение удалено')
+      setDeleteTarget(null)
+      return
+    }
+
+    if (deleteTarget.type === 'material') {
+      const { error } = await deleteMaterialAdmin(deleteTarget.id, deleteTarget.storagePath)
+      setDeleteLoading(false)
+      if (error) { toast.error(error); return }
+      setMaterials(p => p.filter(m => m.id !== deleteTarget.id))
+      toast.success('Материал удалён')
+      setDeleteTarget(null)
+      return
+    }
+
     const { error } = await deleteUserAccount(deleteTarget.id)
     setDeleteLoading(false)
     if (error) { toast.error(error); return }
@@ -317,22 +338,14 @@ export default function Admin() {
     toast.success('Ответ отправлен, обращение закрыто')
   }
 
-  async function handleDeleteSupport(msgId) {
-    if (!window.confirm('Удалить обращение без возможности восстановления?')) return
-    const { error } = await deleteSupportMessage(msgId)
-    if (error) { toast.error(error); return }
-    setSupportMessages(p => p.filter(m => m.id !== msgId))
-    toast.success('Обращение удалено')
+  async function handleDeleteSupport(msgId, subject) {
+    setDeleteTarget({ id: msgId, name: subject || 'обращение', type: 'support' })
   }
 
   /* ═══ MATERIAL ACTIONS ═══ */
 
-  async function handleDeleteMaterial(matId, storagePath) {
-    if (!window.confirm('Удалить материал без возможности восстановления?')) return
-    const { error } = await deleteMaterialAdmin(matId, storagePath)
-    if (error) { toast.error(error); return }
-    setMaterials(p => p.filter(m => m.id !== matId))
-    toast.success('Материал удалён')
+  async function handleDeleteMaterial(matId, storagePath, title) {
+    setDeleteTarget({ id: matId, name: title || 'материал', type: 'material', storagePath })
   }
 
   /* ═══ FILTERS ═══ */
@@ -397,7 +410,7 @@ export default function Admin() {
             </h1>
             <p className="mt-3 text-[13px] text-[var(--color-muted)]">
               {userData?.firstName} {userData?.lastName}
-              {userData?.email && <> · <span className="text-[var(--color-muted-2)]">{userData.email}</span></>}
+              {(user?.email || userData?.email) && <> · <span className="text-[var(--color-muted-2)]">{user?.email || userData?.email}</span></>}
             </p>
           </div>
           <button
@@ -416,7 +429,7 @@ export default function Admin() {
           {/* ═══ SIDEBAR ═══ */}
           <aside className="lg:w-52 flex-shrink-0">
             <div className="bg-[var(--color-paper)] rounded-2xl border border-[var(--color-sepia)] p-2 lg:sticky lg:top-24">
-              <nav className="flex lg:flex-col gap-1 overflow-x-auto">
+              <nav className="flex lg:flex-col gap-1 overflow-x-auto no-scrollbar">
                 {SECTIONS.map(s => {
                   let badge = null
                   if (s.key === 'moderation') badge = pendingRatings.length
@@ -1043,7 +1056,7 @@ export default function Admin() {
                                   </a>
                                 )}
                                 <button
-                                  onClick={() => handleDeleteMaterial(m.id, m.storagePath)}
+                                  onClick={() => handleDeleteMaterial(m.id, m.storagePath, m.title)}
                                   className="p-1.5 rounded-lg hover:bg-[var(--color-danger)]/8 text-[var(--color-muted)] hover:text-[var(--color-danger)] transition-colors"
                                   title="Удалить"
                                 >
@@ -1161,14 +1174,19 @@ export default function Admin() {
           <div className="bg-[var(--color-paper)] rounded-3xl shadow-2xl w-full max-w-sm animate-fade-up">
             <div className="px-6 pt-6 pb-5 text-center">
               <div className="w-14 h-14 bg-[var(--color-danger)]/12 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <UserX size={24} className="text-[var(--color-danger)]" />
+                <Trash2 size={24} className="text-[var(--color-danger)]" />
               </div>
-              <p className="font-bold text-[var(--color-ink)] text-lg">Удалить аккаунт?</p>
-              <p className="text-[var(--color-muted)] text-sm mt-2 leading-relaxed">
-                Аккаунт <span className="font-semibold text-[var(--color-ink)]">{deleteTarget.name}</span> будет
-                помечен как удалённый. Пользователь потеряет доступ к платформе.
+              <p className="font-bold text-[var(--color-ink)] text-lg">
+                {deleteTarget.type === 'support' ? 'Удалить обращение?' :
+                 deleteTarget.type === 'material' ? 'Удалить материал?' : 'Удалить аккаунт?'}
               </p>
-              <p className="text-xs text-[var(--color-danger)] mt-3">Это действие сложно отменить</p>
+              <p className="text-[var(--color-muted)] text-sm mt-2 leading-relaxed">
+                <span className="font-semibold text-[var(--color-ink)]">«{deleteTarget.name}»</span>
+                {deleteTarget.type === 'support' ? ' будет удалено без возможности восстановления.' :
+                 deleteTarget.type === 'material' ? ' будет удалён без возможности восстановления.' :
+                 ' будет помечен как удалённый. Пользователь потеряет доступ к платформе.'}
+              </p>
+              <p className="text-xs text-[var(--color-danger)] mt-3">Это действие нельзя отменить</p>
             </div>
             <div className="px-6 pb-6 flex gap-3">
               <button
