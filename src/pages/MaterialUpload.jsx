@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { uploadFile, createMaterial } from '../services/materials'
 import {
-  ArrowLeft, Upload, FileText, X, CheckCircle, AlertCircle,
+  ArrowLeft, Upload, X, CheckCircle, AlertCircle,
   BookOpen, GraduationCap, Paperclip,
 } from 'lucide-react'
 
@@ -42,10 +42,10 @@ const CATEGORIES = [
 ]
 
 const COURSE_OPTIONS = [
-  { value: '1', label: '1 курс' },
-  { value: '2', label: '2 курс' },
-  { value: '3', label: '3 курс' },
-  { value: '4', label: '4 курс' },
+  { value: '1',   label: '1 курс' },
+  { value: '2',   label: '2 курс' },
+  { value: '3',   label: '3 курс' },
+  { value: '4',   label: '4 курс' },
   { value: 'all', label: 'Все курсы' },
 ]
 
@@ -56,24 +56,21 @@ function formatBytes(bytes) {
 }
 
 function getFileIcon(type = '') {
-  if (type.includes('pdf'))   return '📄'
+  if (type.includes('pdf'))           return '📄'
   if (type.includes('word') || type.includes('wordprocessing')) return '📝'
   if (type.includes('excel') || type.includes('spreadsheet'))   return '📊'
-  if (type.includes('powerpoint') || type.includes('presentation')) return '📊'
-  if (type.includes('image')) return '🖼️'
-  if (type.includes('video')) return '🎥'
-  if (type.includes('text'))  return '📃'
+  if (type.includes('powerpoint') || type.includes('presentation')) return '📑'
+  if (type.includes('image'))         return '🖼️'
+  if (type.includes('video'))         return '🎥'
+  if (type.includes('text'))          return '📃'
   return '📎'
 }
-
-const inputCls = "w-full px-4 py-3 rounded-xl bg-[#2E2824] border border-[#3A322A]/80 text-[#F4EBDB] placeholder:text-[#B8A999]/40 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-rust)]/20 focus:border-[var(--color-rust)]/60 transition-all"
-const labelCls = "block text-xs font-semibold text-[#B8A999] mb-1.5 uppercase tracking-wide"
 
 export default function MaterialUpload() {
   const { user, userData } = useAuth()
   const navigate = useNavigate()
 
-  /* ── Форма ── */
+  /* ── Поля формы ── */
   const [title,       setTitle]       = useState('')
   const [description, setDescription] = useState('')
   const [category,    setCategory]    = useState('lecture')
@@ -81,7 +78,7 @@ export default function MaterialUpload() {
   const [courses,     setCourses]     = useState([])
   const [file,        setFile]        = useState(null)
 
-  /* ── Загрузка ── */
+  /* ── Состояние загрузки ── */
   const [uploading,   setUploading]   = useState(false)
   const [progress,    setProgress]    = useState(0)
   const [error,       setError]       = useState('')
@@ -90,7 +87,7 @@ export default function MaterialUpload() {
 
   const fileRef = useRef()
 
-  /* ── Выбор файла ── */
+  /* ── Выбор / смена файла ── */
   function pickFile(f) {
     setError('')
     if (!f) return
@@ -101,7 +98,6 @@ export default function MaterialUpload() {
     setFile(f)
   }
 
-  /* ── Drag & drop ── */
   const onDrop = useCallback((e) => {
     e.preventDefault()
     setDragOver(false)
@@ -127,42 +123,41 @@ export default function MaterialUpload() {
     e.preventDefault()
     setError('')
 
-    if (!title.trim())      return setError('Укажите название материала')
-    if (!discipline.trim()) return setError('Укажите дисциплину')
+    if (!title.trim())        return setError('Укажите название материала')
+    if (!discipline.trim())   return setError('Укажите дисциплину')
     if (courses.length === 0) return setError('Выберите хотя бы один курс')
-    if (!file)              return setError('Прикрепите файл')
-    if (!user)              return setError('Не авторизован')
+    if (!file)                return setError('Прикрепите файл')
+    if (!user)                return setError('Не авторизован')
 
     setUploading(true)
     setProgress(0)
 
     try {
-      /* Уникальное имя файла: timestamp + оригинальное имя */
-      const safeName = file.name.replace(/[^a-zA-Z0-9._\-а-яёА-ЯЁ ]/g, '_')
+      const safeName    = file.name.replace(/[^a-zA-Z0-9._\-а-яёА-ЯЁ ]/g, '_')
       const storagePath = `materials/${user.uid}/${Date.now()}_${safeName}`
 
-      /* 1. Загрузка файла в Storage */
+      /* 1. Загружаем файл в Storage */
       const fileUrl = await uploadFile(file, storagePath, (pct) => {
         setProgress(Math.round(pct))
       })
 
-      /* 2. Сохранение метаданных в Firestore */
+      /* 2. Сохраняем метаданные в Firestore */
       const teacherName = userData
         ? [userData.firstName, userData.lastName].filter(Boolean).join(' ') || userData.email
         : 'Преподаватель'
 
       const { error: fsErr } = await createMaterial({
-        title:        title.trim(),
-        description:  description.trim(),
+        title:       title.trim(),
+        description: description.trim(),
         category,
-        discipline:   discipline.trim(),
-        courses:      courses.includes('all') ? ['all'] : courses,
-        teacherId:    user.uid,
+        discipline:  discipline.trim(),
+        courses:     courses.includes('all') ? ['all'] : courses,
+        teacherId:   user.uid,
         teacherName,
         fileUrl,
-        fileName:     file.name,
-        fileSize:     file.size,
-        fileType:     file.type,
+        fileName:    file.name,
+        fileSize:    file.size,
+        fileType:    file.type,
       })
 
       if (fsErr) throw new Error(fsErr)
@@ -171,7 +166,7 @@ export default function MaterialUpload() {
     } catch (err) {
       console.error('[MaterialUpload]', err)
       if (err.code === 'storage/unauthorized') {
-        setError('Нет прав на загрузку. Убедитесь, что ваш аккаунт активирован.')
+        setError('Нет прав на загрузку. Убедитесь, что аккаунт активирован администратором.')
       } else if (err.code === 'storage/canceled') {
         setError('Загрузка отменена.')
       } else {
@@ -182,24 +177,24 @@ export default function MaterialUpload() {
     }
   }
 
-  /* ── Успешная загрузка ── */
+  /* ── Экран успеха ── */
   if (success) {
     return (
       <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center px-4">
         <div className="max-w-sm w-full text-center">
-          <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 flex items-center justify-center mx-auto mb-5">
-            <CheckCircle size={32} className="text-emerald-400" />
+          <div className="w-16 h-16 rounded-2xl bg-[var(--color-ok)]/15 flex items-center justify-center mx-auto mb-5">
+            <CheckCircle size={32} className="text-[var(--color-ok)]" />
           </div>
           <h2 className="font-display text-2xl font-bold text-[var(--color-ink)] mb-2">
             Материал загружен!
           </h2>
-          <p className="text-sm text-[var(--color-muted)] mb-8">
+          <p className="text-sm text-[var(--color-muted)] leading-relaxed mb-8">
             Файл успешно добавлен в библиотеку и теперь доступен студентам.
           </p>
           <div className="flex gap-3">
             <button
               onClick={() => navigate(`/teachers/${user?.uid}`)}
-              className="flex-1 py-3 bg-[var(--color-rust)] text-white text-sm font-semibold rounded-xl hover:brightness-95 transition-all"
+              className="flex-1 py-3 bg-[var(--color-rust)] text-[var(--color-paper)] text-sm font-semibold rounded-xl hover:brightness-95 transition-all"
             >
               Мой профиль
             </button>
@@ -209,7 +204,7 @@ export default function MaterialUpload() {
                 setTitle(''); setDescription(''); setDiscipline('')
                 setCourses([]); setFile(null); setProgress(0)
               }}
-              className="flex-1 py-3 border border-[var(--color-ink)]/20 text-[var(--color-ink)] text-sm font-semibold rounded-xl hover:bg-[var(--color-ink)]/5 transition-all"
+              className="flex-1 py-3 border border-[var(--color-sepia)] text-[var(--color-ink)] text-sm font-semibold rounded-xl hover:bg-[var(--color-paper-2)] transition-all"
             >
               Ещё один
             </button>
@@ -219,15 +214,20 @@ export default function MaterialUpload() {
     )
   }
 
+  /* ── Классы ── */
+  const cardCls = "bg-[var(--color-paper)] rounded-2xl p-5 border border-[var(--color-sepia)]"
+  const inputCls = "w-full px-4 py-3 rounded-xl bg-[var(--color-paper-2)] border border-[var(--color-sepia)] text-[var(--color-ink)] placeholder:text-[var(--color-muted)]/60 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-rust)]/20 focus:border-[var(--color-rust)]/50 transition-all"
+  const labelCls = "block text-[11px] font-semibold text-[var(--color-muted)] mb-1.5 uppercase tracking-widest"
+
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
       <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
 
-        {/* Шапка */}
+        {/* ── Шапка ── */}
         <div className="flex items-center gap-3 mb-8">
           <button
             onClick={() => navigate(-1)}
-            className="w-9 h-9 rounded-xl bg-[var(--color-ink)]/8 hover:bg-[var(--color-ink)]/12 flex items-center justify-center transition-colors"
+            className="w-9 h-9 rounded-xl bg-[var(--color-paper)] border border-[var(--color-sepia)] flex items-center justify-center hover:bg-[var(--color-paper-2)] transition-colors"
           >
             <ArrowLeft size={18} className="text-[var(--color-ink)]" />
           </button>
@@ -241,35 +241,36 @@ export default function MaterialUpload() {
           </div>
         </div>
 
-        {/* Форма */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* Название */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-[var(--color-ink)]/6">
+          {/* ── Название ── */}
+          <div className={cardCls}>
             <label className={labelCls}>Название материала *</label>
             <input
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-[#F5F0E8] border border-[var(--color-ink)]/10 text-[var(--color-ink)] placeholder:text-[var(--color-muted)]/50 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-rust)]/20 focus:border-[var(--color-rust)]/40 transition-all"
+              className={inputCls}
               placeholder="Например: Лекция 5 — Методы машинного обучения"
               maxLength={200}
               disabled={uploading}
             />
-            <p className="text-[11px] text-[var(--color-muted)] mt-1.5 text-right">{title.length}/200</p>
+            <p className="text-[11px] text-[var(--color-muted)] mt-1.5 text-right">
+              {title.length}/200
+            </p>
           </div>
 
-          {/* Категория + Дисциплина */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-[var(--color-ink)]/6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* ── Тип + Дисциплина ── */}
+          <div className={`${cardCls} grid grid-cols-1 sm:grid-cols-2 gap-4`}>
             <div>
               <label className={labelCls}>
-                <BookOpen size={11} className="inline mr-1" />
+                <BookOpen size={10} className="inline mr-1 opacity-70" />
                 Тип материала *
               </label>
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value)}
                 disabled={uploading}
-                className="w-full px-4 py-3 rounded-xl bg-[#F5F0E8] border border-[var(--color-ink)]/10 text-[var(--color-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-rust)]/20 focus:border-[var(--color-rust)]/40 transition-all appearance-none cursor-pointer"
+                className={inputCls + ' cursor-pointer'}
               >
                 {CATEGORIES.map(c => (
                   <option key={c.value} value={c.value}>{c.label}</option>
@@ -278,13 +279,13 @@ export default function MaterialUpload() {
             </div>
             <div>
               <label className={labelCls}>
-                <GraduationCap size={11} className="inline mr-1" />
+                <GraduationCap size={10} className="inline mr-1 opacity-70" />
                 Дисциплина *
               </label>
               <input
                 value={discipline}
                 onChange={e => setDiscipline(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[#F5F0E8] border border-[var(--color-ink)]/10 text-[var(--color-ink)] placeholder:text-[var(--color-muted)]/50 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-rust)]/20 focus:border-[var(--color-rust)]/40 transition-all"
+                className={inputCls}
                 placeholder="Математический анализ"
                 maxLength={100}
                 disabled={uploading}
@@ -292,8 +293,8 @@ export default function MaterialUpload() {
             </div>
           </div>
 
-          {/* Курсы */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-[var(--color-ink)]/6">
+          {/* ── Курсы ── */}
+          <div className={cardCls}>
             <label className={labelCls}>Для каких курсов *</label>
             <div className="flex flex-wrap gap-2">
               {COURSE_OPTIONS.map(c => {
@@ -306,8 +307,8 @@ export default function MaterialUpload() {
                     onClick={() => toggleCourse(c.value)}
                     className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
                       active
-                        ? 'bg-[var(--color-rust)] text-white border-[var(--color-rust)]'
-                        : 'bg-[#F5F0E8] text-[var(--color-muted)] border-[var(--color-ink)]/10 hover:border-[var(--color-rust)]/30 hover:text-[var(--color-ink)]'
+                        ? 'bg-[var(--color-rust)] text-[var(--color-paper)] border-[var(--color-rust)]'
+                        : 'bg-[var(--color-paper-2)] text-[var(--color-muted)] border-[var(--color-sepia)] hover:border-[var(--color-rust)]/40 hover:text-[var(--color-ink)]'
                     }`}
                   >
                     {c.label}
@@ -317,45 +318,55 @@ export default function MaterialUpload() {
             </div>
           </div>
 
-          {/* Описание */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-[var(--color-ink)]/6">
-            <label className={labelCls}>Описание <span className="normal-case font-normal text-[var(--color-muted)]">(необязательно)</span></label>
+          {/* ── Описание ── */}
+          <div className={cardCls}>
+            <label className={labelCls}>
+              Описание{' '}
+              <span className="normal-case font-normal tracking-normal text-[var(--color-muted)]/70">
+                (необязательно)
+              </span>
+            </label>
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
               rows={3}
               maxLength={1000}
               disabled={uploading}
-              className="w-full px-4 py-3 rounded-xl bg-[#F5F0E8] border border-[var(--color-ink)]/10 text-[var(--color-ink)] placeholder:text-[var(--color-muted)]/50 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-rust)]/20 focus:border-[var(--color-rust)]/40 transition-all resize-none"
+              className={inputCls + ' resize-none'}
               placeholder="Кратко опишите содержание материала..."
             />
-            <p className="text-[11px] text-[var(--color-muted)] mt-1 text-right">{description.length}/1000</p>
+            <p className="text-[11px] text-[var(--color-muted)] mt-1 text-right">
+              {description.length}/1000
+            </p>
           </div>
 
-          {/* Файл */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-[var(--color-ink)]/6">
+          {/* ── Файл ── */}
+          <div className={cardCls}>
             <label className={labelCls}>
-              <Paperclip size={11} className="inline mr-1" />
+              <Paperclip size={10} className="inline mr-1 opacity-70" />
               Файл *
             </label>
 
             {file ? (
               /* Файл выбран */
-              <div className="flex items-center gap-3 p-4 bg-[#F5F0E8] rounded-xl border border-[var(--color-ink)]/10">
-                <span className="text-2xl flex-shrink-0">{getFileIcon(file.type)}</span>
+              <div className="flex items-center gap-3 p-3 bg-[var(--color-paper-2)] rounded-xl border border-[var(--color-sepia)]">
+                <span className="text-xl flex-shrink-0">{getFileIcon(file.type)}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-[var(--color-ink)] truncate">{file.name}</p>
                   <p className="text-[11px] text-[var(--color-muted)] mt-0.5">{formatBytes(file.size)}</p>
                 </div>
                 {!uploading && (
-                  <button type="button" onClick={() => { setFile(null); setError('') }}
-                    className="w-7 h-7 rounded-full bg-[var(--color-ink)]/10 hover:bg-red-100 flex items-center justify-center transition-colors flex-shrink-0">
-                    <X size={14} className="text-[var(--color-ink)]" />
+                  <button
+                    type="button"
+                    onClick={() => { setFile(null); setError('') }}
+                    className="w-7 h-7 rounded-full bg-[var(--color-sepia)] hover:bg-[var(--color-danger)]/20 flex items-center justify-center transition-colors flex-shrink-0"
+                  >
+                    <X size={13} className="text-[var(--color-muted)]" />
                   </button>
                 )}
               </div>
             ) : (
-              /* Дропзона */
+              /* Drag & drop зона */
               <div
                 onDragOver={e => { e.preventDefault(); setDragOver(true) }}
                 onDragLeave={() => setDragOver(false)}
@@ -363,12 +374,12 @@ export default function MaterialUpload() {
                 onClick={() => fileRef.current?.click()}
                 className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
                   dragOver
-                    ? 'border-[var(--color-rust)] bg-[var(--color-rust)]/5'
-                    : 'border-[var(--color-ink)]/15 hover:border-[var(--color-rust)]/40 hover:bg-[#F5F0E8]/60'
+                    ? 'border-[var(--color-rust)] bg-[var(--color-rust-wash)]'
+                    : 'border-[var(--color-sepia-2)] hover:border-[var(--color-rust)]/50 hover:bg-[var(--color-paper-2)]'
                 }`}
               >
-                <div className="w-12 h-12 rounded-xl bg-[var(--color-rust)]/10 flex items-center justify-center mx-auto mb-3">
-                  <Upload size={22} className="text-[var(--color-rust)]" />
+                <div className="w-11 h-11 rounded-xl bg-[var(--color-rust-wash)] flex items-center justify-center mx-auto mb-3">
+                  <Upload size={20} className="text-[var(--color-rust)]" />
                 </div>
                 <p className="text-sm font-semibold text-[var(--color-ink)]">
                   Перетащите файл сюда
@@ -376,7 +387,7 @@ export default function MaterialUpload() {
                 <p className="text-xs text-[var(--color-muted)] mt-1">
                   или нажмите для выбора
                 </p>
-                <p className="text-[11px] text-[var(--color-muted)]/70 mt-3">
+                <p className="text-[11px] text-[var(--color-muted)]/60 mt-3">
                   PDF, Word, Excel, PPT, изображения, видео · Макс. 50 МБ
                 </p>
               </div>
@@ -392,14 +403,14 @@ export default function MaterialUpload() {
             />
           </div>
 
-          {/* Прогресс загрузки */}
+          {/* ── Прогресс ── */}
           {uploading && (
-            <div className="bg-white rounded-2xl p-5 shadow-sm border border-[var(--color-ink)]/6">
+            <div className={cardCls}>
               <div className="flex justify-between text-sm mb-2">
                 <span className="font-semibold text-[var(--color-ink)]">Загрузка файла...</span>
                 <span className="text-[var(--color-rust)] font-bold">{progress}%</span>
               </div>
-              <div className="h-2 bg-[#F5F0E8] rounded-full overflow-hidden">
+              <div className="h-2 bg-[var(--color-paper-2)] rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[var(--color-rust)] rounded-full transition-all duration-300"
                   style={{ width: `${progress}%` }}
@@ -411,37 +422,37 @@ export default function MaterialUpload() {
             </div>
           )}
 
-          {/* Ошибка */}
+          {/* ── Ошибка ── */}
           {error && (
-            <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-2xl">
-              <AlertCircle size={18} className="text-red-500 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-700">{error}</p>
+            <div className="flex items-start gap-3 p-4 bg-[var(--color-danger)]/10 border border-[var(--color-danger)]/30 rounded-2xl">
+              <AlertCircle size={17} className="text-[var(--color-danger)] flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-[var(--color-danger)]">{error}</p>
             </div>
           )}
 
-          {/* Кнопки */}
-          <div className="flex gap-3 pt-2">
+          {/* ── Кнопки ── */}
+          <div className="flex gap-3 pt-1">
             <button
               type="button"
               onClick={() => navigate(-1)}
               disabled={uploading}
-              className="flex-1 py-3.5 border border-[var(--color-ink)]/20 text-[var(--color-ink)] text-sm font-semibold rounded-xl hover:bg-[var(--color-ink)]/5 transition-all disabled:opacity-50"
+              className="flex-1 py-3.5 border border-[var(--color-sepia)] text-[var(--color-ink)] text-sm font-semibold rounded-xl hover:bg-[var(--color-paper)] transition-all disabled:opacity-50"
             >
               Отмена
             </button>
             <button
               type="submit"
               disabled={uploading || !file}
-              className="flex-1 py-3.5 bg-[var(--color-rust)] text-white text-sm font-semibold rounded-xl hover:brightness-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 py-3.5 bg-[var(--color-rust)] text-[var(--color-paper)] text-sm font-semibold rounded-xl hover:brightness-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {uploading ? (
                 <>
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="w-4 h-4 border-2 border-[var(--color-paper)]/30 border-t-[var(--color-paper)] rounded-full animate-spin" />
                   Загрузка {progress}%
                 </>
               ) : (
                 <>
-                  <Upload size={16} />
+                  <Upload size={15} />
                   Загрузить материал
                 </>
               )}
