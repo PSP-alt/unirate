@@ -12,6 +12,7 @@
   /* ── Smooth scroll globally ── */
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
   body {

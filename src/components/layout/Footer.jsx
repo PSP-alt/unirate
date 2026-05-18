@@ -93,7 +93,7 @@ export default function Footer() {
       <div className="border-t border-[#3A322A]">
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-6 flex flex-col sm:flex-row justify-between items-center gap-3">
           <p className="text-[11px] tracking-[0.15em] uppercase text-[#8B827A]">
-            © 2025 Unirate · Все отзывы принадлежат их авторам
+            © {new Date().getFullYear()} Unirate · Все отзывы принадлежат их авторам
           </p>
           <p className="text-[11px] tracking-[0.15em] uppercase text-[#8B827A]">
             v 1.0

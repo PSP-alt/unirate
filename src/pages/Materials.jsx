@@ -79,7 +79,7 @@ export default function Materials() {
   useEffect(() => {
     if (!user || !isStudent) return
     getBookmarks(user.uid).then(({ bookmarkIds }) => {
-      setBookmarked(new Set(bookmarkIds))
+      setBookmarked(new Set(bookmarkIds || []))
     })
   }, [user, isStudent])
 

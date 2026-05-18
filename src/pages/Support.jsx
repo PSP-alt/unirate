@@ -87,7 +87,7 @@ export default function Support() {
       message: message.trim(),
       status: 'new',
       adminResponse: '',
-      createdAt: { seconds: Math.floor(Date.now() / 1000) },
+      createdAt: { toDate: () => new Date() },
     }, ...prev])
   }
 

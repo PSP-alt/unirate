@@ -151,8 +151,9 @@ export default function Teachers() {
   }
 
   const totalRatings = teachers.reduce((s,t) => s + (t.ratingsCount||0), 0)
-  const avgRating    = teachers.length
-    ? (teachers.reduce((s,t) => s + (t.averageRating||0), 0) / teachers.length).toFixed(1).replace('.', ',')
+  const ratedTeachers = teachers.filter(t => (t.averageRating || 0) > 0)
+  const avgRating    = ratedTeachers.length
+    ? (ratedTeachers.reduce((s,t) => s + (t.averageRating||0), 0) / ratedTeachers.length).toFixed(1).replace('.', ',')
     : '—'
 
   return (

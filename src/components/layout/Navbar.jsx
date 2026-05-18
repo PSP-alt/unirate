@@ -217,6 +217,26 @@ export default function Navbar() {
             )
           })}
 
+          {user && (
+            <div className={`pt-3 mt-2 border-t ${theme.divider}/40 space-y-1`}>
+              <Link
+                to={userData?.role === 'teacher' ? `/teachers/${user.uid}` : '/profile'}
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${theme.text} ${theme.menuHover}`}
+              >
+                <User size={16} />
+                {userData?.role === 'teacher' ? 'Мой профиль' : 'Личный кабинет'}
+              </Link>
+              <button
+                onClick={() => { logoutUser(); setMobileOpen(false) }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10`}
+              >
+                <LogOut size={16} />
+                Выйти
+              </button>
+            </div>
+          )}
+
           {!user && (
             <div className={`pt-3 mt-2 border-t ${theme.divider}/40`}>
               <Link to="/login" className="block px-4 py-3 text-sm font-semibold text-center rounded-full bg-[var(--color-rust)] text-[#FFFDF7]">

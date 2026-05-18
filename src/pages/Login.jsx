@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { loginUser } from '../services/auth'
+import { useAuth } from '../context/AuthContext'
 import { ArrowLeft, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react'
 
 /* ⚠ Тестовые аккаунты доступны ТОЛЬКО в dev-сборке.
@@ -21,11 +22,20 @@ const TEST_ACCOUNTS = IS_DEV
 
 export default function Login() {
   const navigate = useNavigate()
+  const { user, userData } = useAuth()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
   const [showTests, setShowTests] = useState(false)
+
+  /* Редирект если уже авторизован */
+  useEffect(() => {
+    if (user) {
+      const dest = userData?.role === 'teacher' ? `/teachers/${user.uid}` : '/'
+      navigate(dest, { replace: true })
+    }
+  }, [user, userData, navigate])
 
   async function handleSubmit(e) {
     e.preventDefault()

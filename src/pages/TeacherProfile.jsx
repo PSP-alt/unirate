@@ -1153,10 +1153,10 @@ export default function TeacherProfile() {
             {!user ? (
               <div className="bg-[var(--color-rust)] rounded-2xl p-5 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <Lock size={20} className="text-[var(--color-rust)] flex-shrink-0" />
+                  <Lock size={20} className="text-[#FFFDF7] flex-shrink-0" />
                   <p className="text-sm text-white/80">Чтобы оставить отзыв, войдите в аккаунт студента</p>
                 </div>
-                <Link to="/login" className="px-4 py-2 bg-[var(--color-rust)] text-[#FFFDF7] text-xs font-bold rounded-xl whitespace-nowrap hover:brightness-95">
+                <Link to="/login" className="px-4 py-2 bg-[#FFFDF7] text-[var(--color-rust)] text-xs font-bold rounded-xl whitespace-nowrap hover:brightness-95">
                   Войти
                 </Link>
               </div>
@@ -1395,7 +1395,7 @@ export default function TeacherProfile() {
                 </div>
 
                 {saveMsg && <p className={`text-sm font-medium ${saveMsg.includes('Ошибка') ? 'text-red-500' : 'text-emerald-600'}`}>{saveMsg}</p>}
-                <button type="submit" disabled={saving} className="w-full py-3 bg-primary text-on-primary text-sm font-semibold rounded-xl hover:bg-primary-container transition-colors disabled:opacity-50">
+                <button type="submit" disabled={saving} className="w-full py-3 bg-[var(--color-rust)] text-[#FFFDF7] text-sm font-semibold rounded-xl hover:brightness-95 transition-colors disabled:opacity-50">
                   {saving ? 'Сохранение...' : 'Сохранить'}
                 </button>
               </form>
@@ -1459,14 +1459,14 @@ export default function TeacherProfile() {
                       <span className="text-sm text-[#F4EBDB]">{opt.label}</span>
                       <div
                         onClick={() => setEditForm(f=>({...f,[opt.key]:!f[opt.key]}))}
-                        className={`w-10 h-6 rounded-full transition-colors cursor-pointer relative ${editForm[opt.key] ? 'bg-primary' : 'bg-slate-200'}`}>
+                        className={`w-10 h-6 rounded-full transition-colors cursor-pointer relative ${editForm[opt.key] ? 'bg-[var(--color-rust)]' : 'bg-[#3A322A]'}`}>
                         <div className={`absolute top-1 w-4 h-4 bg-[#24201C] rounded-full shadow transition-transform ${editForm[opt.key] ? 'translate-x-5' : 'translate-x-1'}`} />
                       </div>
                     </label>
                   ))}
                 </div>
                 <button onClick={saveSettings} disabled={saving}
-                  className="mt-4 w-full py-2.5 bg-[#2E2824] text-[#F4EBDB] text-sm font-medium rounded-xl hover:bg-surface-container border border-[#3A322A]/80 transition-colors">
+                  className="mt-4 w-full py-2.5 bg-[#2E2824] text-[#F4EBDB] text-sm font-medium rounded-xl hover:bg-[#3A322A] border border-[#3A322A]/80 transition-colors">
                   Сохранить настройки
                 </button>
               </div>
