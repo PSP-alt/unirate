@@ -18,7 +18,7 @@ import { storage } from '../services/firebase'
 import {
   Star, Send, Lock, CheckCircle, ArrowUpDown, ChevronDown, ChevronUp,
   Download, ThumbsUp, ThumbsDown, Flag, MessageCircle, Shield, AlertTriangle,
-  Info, BookOpen, TrendingUp, TrendingDown, Eye,
+  Info, BookOpen, TrendingUp, TrendingDown, Eye, Upload,
 } from 'lucide-react'
 
 /* ── Constants ── */
@@ -1313,25 +1313,50 @@ export default function TeacherProfile() {
         {/* ══ TAB: MATERIALS ══ */}
         {tab === 'materials' && (
           <div className="animate-slide-up">
-            {matDisciplines.length > 0 && (
-              <div className="flex gap-2 flex-wrap mb-6">
-                {['all', ...matDisciplines].map(d => (
-                  <button key={d} onClick={() => setMatFilter(d)}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
-                      matFilter === d
-                        ? 'bg-[var(--color-rust)] text-white border-[var(--color-rust)]'
-                        : 'bg-[#24201C] border-[#3A322A] text-[#B8A999] hover:border-[var(--color-rust)]/40 hover:text-[#F4EBDB]'
-                    }`}>
-                    {d === 'all' ? 'Все материалы' : d}
-                  </button>
-                ))}
-              </div>
-            )}
+
+            {/* Шапка вкладки — фильтры + кнопка загрузки */}
+            <div className="flex flex-wrap items-center gap-2 mb-6">
+              {matDisciplines.length > 0 && (
+                <>
+                  {['all', ...matDisciplines].map(d => (
+                    <button key={d} onClick={() => setMatFilter(d)}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
+                        matFilter === d
+                          ? 'bg-[var(--color-rust)] text-white border-[var(--color-rust)]'
+                          : 'bg-[#24201C] border-[#3A322A] text-[#B8A999] hover:border-[var(--color-rust)]/40 hover:text-[#F4EBDB]'
+                      }`}>
+                      {d === 'all' ? 'Все материалы' : d}
+                    </button>
+                  ))}
+                </>
+              )}
+              {/* Кнопка загрузки — только для владельца профиля */}
+              {isOwn && (
+                <Link
+                  to="/materials/upload"
+                  className="ml-auto flex items-center gap-1.5 px-4 py-1.5 bg-[var(--color-rust)] text-white text-xs font-semibold rounded-xl hover:brightness-95 transition-all"
+                >
+                  <Upload size={13} />
+                  Загрузить материал
+                </Link>
+              )}
+            </div>
 
             {filteredMaterials.length === 0 ? (
               <div className="bg-[#24201C] rounded-3xl p-12 text-center border border-[#3A322A]">
                 <span className="material-symbols-outlined text-[40px] text-[#6B625A]">folder_open</span>
-                <p className="text-[#B8A999] mt-2 text-sm">Материалы не найдены</p>
+                <p className="text-[#B8A999] mt-2 text-sm">
+                  {isOwn ? 'Вы пока не загрузили ни одного материала' : 'Материалы не найдены'}
+                </p>
+                {isOwn && (
+                  <Link
+                    to="/materials/upload"
+                    className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 bg-[var(--color-rust)] text-white text-sm font-semibold rounded-xl hover:brightness-95 transition-all"
+                  >
+                    <Upload size={15} />
+                    Загрузить первый материал
+                  </Link>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
