@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useLocation } from 'react-router-dom'
 import { getTeachers } from '../services/teachers'
 import {
   Search, ArrowRight, Users,
@@ -42,6 +42,7 @@ export default function Teachers() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [teachers, setTeachers] = useState([])
   const [loading,  setLoading]  = useState(true)
+  const location = useLocation()
 
   const [search,     setSearch]     = useState(searchParams.get('q') || '')
   const [typeFilter, setTypeFilter] = useState(searchParams.get('type') || 'all')
@@ -81,6 +82,7 @@ export default function Teachers() {
 
   useEffect(() => {
     let cancelled = false
+    setLoading(true)
     getTeachers()
       .then(({ teachers: list, error }) => {
         if (cancelled) return
@@ -98,7 +100,8 @@ export default function Teachers() {
         setLoading(false)
       })
     return () => { cancelled = true }
-  }, [])
+  // location.key меняется при каждом переходе — гарантирует рефетч
+  }, [location.key])
 
   const filtered = useMemo(() => {
     let list = [...teachers]

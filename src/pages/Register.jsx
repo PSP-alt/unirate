@@ -150,7 +150,7 @@ export default function Register() {
   }
 
   /* ── Уже авторизован — показываем заглушку ── */
-  if (!loading && user) {
+  if (!loading && user && !submitting) {
     const displayName = userData
       ? [userData.firstName, userData.lastName].filter(Boolean).join(' ') || user.email
       : user.email

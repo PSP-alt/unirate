@@ -56,7 +56,7 @@ export default function Home() {
     }
 
     loadCount(query(collection(db, 'users'),    where('role', '==', 'student')),    'students')
-    loadCount(collection(db, 'teachers'),                                            'teachers')
+    loadCount(query(collection(db, 'teachers'), where('isDeleted', '!=', true)),      'teachers')
     loadCount(query(collection(db, 'ratings'),  where('status', '==', 'approved')), 'ratings')
 
     return () => { cancelled = true }

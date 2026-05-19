@@ -64,6 +64,7 @@ export default function Navbar() {
   /* ── Стилистика в зависимости от темы шапки ── */
   const theme = isLanding ? {
     wrap:      `fixed top-0 w-full z-50 transition-colors duration-300 ${scrolled ? 'bg-[#1A1613]/90 backdrop-blur-xl' : 'bg-transparent'}`,
+    mobileBg:  'bg-[#1A1613]/90 backdrop-blur-xl',
     text:      'text-[#E6D9C9]',
     textMuted: 'text-[#B8A999]',
     textHover: 'hover:text-[#F4EBDB]',
@@ -81,6 +82,7 @@ export default function Navbar() {
     textHover: 'hover:text-[var(--color-ink)]',
     pillBorder:'border-[var(--color-sepia)]',
     pillBg:    'bg-[var(--color-paper)]',
+    mobileBg:  'bg-[var(--color-cream)]/95 backdrop-blur-xl',
     divider:   'bg-[var(--color-sepia)]',
     menuBg:    'bg-[var(--color-paper)] border-[var(--color-sepia)]',
     menuHover: 'hover:bg-[var(--color-paper-2)]',
@@ -106,7 +108,7 @@ export default function Navbar() {
         {/* ── Центр: ссылки ── */}
         <div className="hidden lg:flex items-center gap-1">
           {links.map(({ to, label }) => {
-            const active = !isLanding && location.pathname === to
+            const active = location.pathname === to
             return (
               <Link
                 key={to}
@@ -198,9 +200,9 @@ export default function Navbar() {
 
       {/* Мобильное меню */}
       {mobileOpen && (
-        <div className={`lg:hidden ${theme.pillBg} border-t ${theme.divider}/40 px-6 py-4 space-y-1 animate-slide-down`}>
+        <div className={`lg:hidden ${theme.mobileBg} border-t ${theme.divider}/40 px-6 py-4 space-y-1 animate-slide-down`}>
           {links.map(({ to, label }) => {
-            const active = !isLanding && location.pathname === to
+            const active = location.pathname === to
             return (
               <Link
                 key={to}

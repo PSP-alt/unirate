@@ -5,7 +5,15 @@
    Защищённые маршруты используют PrivateRoute.
    ═══════════════════════════════════════════════════ */
 
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+
+/* При каждом переходе между страницами скроллим в начало */
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  return null
+}
 import { Toaster } from 'react-hot-toast'
 
 import { AuthProvider } from './context/AuthContext'
@@ -58,6 +66,7 @@ export default function App() {
           }}
         />
 
+        <ScrollToTop />
         <Routes>
           <Route element={<Layout />}>
             {/* Публичные страницы */}

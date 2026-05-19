@@ -89,7 +89,9 @@ export async function getTeacherById(teacherId) {
   try {
     const docSnap = await getDoc(doc(db, 'teachers', teacherId))
     if (docSnap.exists()) {
-      return { teacher: { id: docSnap.id, ...docSnap.data() }, error: null }
+      const data = { id: docSnap.id, ...docSnap.data() }
+      if (data.isDeleted) return { teacher: null, error: 'Преподаватель не найден' }
+      return { teacher: data, error: null }
     }
     return { teacher: null, error: 'Преподаватель не найден' }
   } catch (error) {
