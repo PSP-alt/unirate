@@ -37,8 +37,19 @@ export async function registerUser(email, password, displayName) {
     const result = await createUserWithEmailAndPassword(auth, email, password)
     /* Устанавливаем отображаемое имя */
     await updateProfile(result.user, { displayName })
+
+    /* Принудительно получаем ID-токен — без этого Firestore SDK
+       может ещё не знать о новом пользователе и security rules
+       отклонят запись в createUserDocument (гонка состояний). */
+    await result.user.getIdToken(true)
+
     return { user: result.user, error: null }
   } catch (error) {
+    /* Если Auth-аккаунт создался, но updateProfile/getIdToken упали,
+       удаляем «полу-аккаунт» чтобы пользователь мог попробовать снова */
+    if (auth.currentUser) {
+      try { await auth.currentUser.delete() } catch { /* best effort */ }
+    }
     return { user: null, error: getErrorMessage(error) }
   }
 }
