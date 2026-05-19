@@ -10,7 +10,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { onSnapshot, doc, arrayUnion } from 'firebase/firestore'
 import { auth, db, isFirebaseConfigured } from '../services/firebase'
-import { getUserDocument, createUserDocument, updateUserDocument } from '../services/firestore'
+import { getUserDocument, updateUserDocument } from '../services/firestore'
 
 const AuthContext = createContext(null)
 
@@ -37,22 +37,12 @@ export function AuthProvider({ children }) {
       setFirebaseUser(user)
 
       if (user) {
-        /* Убеждаемся, что документ существует.
-           ВАЖНО: роль НЕ выводим из e-mail (privilege escalation).
-           Любой автосоздаваемый документ — student по умолчанию.
-           Если человек регистрировался как преподаватель, role будет
-           установлен в Register.jsx до этого блока. */
-        let { data: existing } = await getUserDocument(user.uid)
-        if (!existing) {
-          await createUserDocument(user.uid, {
-            email:     user.email,
-            firstName: user.displayName?.split(' ')[0] || '',
-            lastName:  user.displayName?.split(' ').slice(1).join(' ') || '',
-            role:      'student',
-            course:    1,
-            isActive:  true,
-          })
-        }
+        /* НЕ создаём документ автоматически!
+           Документ пользователя создаётся ТОЛЬКО в Register.jsx
+           с полными данными (роль, согласия 152-ФЗ, студенческий билет и т.д.).
+           Авто-создание здесь вызывало гонку: AuthContext опережал
+           Register.jsx и писал неполный документ, из-за чего повторный
+           setDoc воспринимался как update и блокировался security rules. */
 
         /* Подписка на реальное время — любое изменение документа
            (в том числе блокировка/разблокировка администратором)

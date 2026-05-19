@@ -40,29 +40,42 @@ export async function checkStudentIdUnique(studentId) {
    датой LAST_UPDATED в pages/Privacy.jsx и pages/Terms.jsx. */
 export const CURRENT_DOC_VERSION = '2026-04-24'
 
-/* Создать документ пользователя после регистрации */
+/* Создать документ пользователя после регистрации.
+   Retry-логика: Firestore SDK может не сразу получить auth-токен
+   после createUserWithEmailAndPassword — повторяем до 3 раз. */
 export async function createUserDocument(uid, data) {
-  try {
-    await setDoc(doc(db, 'users', uid), {
-      uid,
-      email: data.email,
-      firstName: data.firstName || '',
-      lastName:  data.lastName  || '',
-      middleName: data.middleName || '',     // ← было потеряно для студентов
-      role: data.role, // "student" | "teacher" | "admin"
-      course: data.course || null, // 1-4 для студентов
-      studentId: data.studentId || null, // номер студенческого билета
-      avatarUrl: null,
-      isActive: data.isActive !== undefined ? data.isActive : data.role === 'student',
-      createdAt: serverTimestamp(),
+  const payload = {
+    uid,
+    email: data.email,
+    firstName: data.firstName || '',
+    lastName:  data.lastName  || '',
+    middleName: data.middleName || '',
+    role: data.role, // "student" | "teacher" | "admin"
+    course: data.course || null, // 1-4 для студентов
+    studentId: data.studentId || null, // номер студенческого билета
+    avatarUrl: null,
+    isActive: data.isActive !== undefined ? data.isActive : data.role === 'student',
+    createdAt: serverTimestamp(),
 
-      /* Юридический след принятия документов (152-ФЗ — фиксация согласия) */
-      consents: data.consents || null,
-    })
-    return { error: null }
-  } catch (error) {
-    console.error('[createUserDocument]', error)
-    return { error: 'Не удалось сохранить данные пользователя' }
+    /* Юридический след принятия документов (152-ФЗ — фиксация согласия) */
+    consents: data.consents || null,
+  }
+
+  const MAX_RETRIES = 3
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await setDoc(doc(db, 'users', uid), payload)
+      return { error: null }
+    } catch (error) {
+      console.error(`[createUserDocument] attempt ${attempt}/${MAX_RETRIES}`, error)
+      /* permission-denied = скорее всего гонка Auth ↔ Firestore SDK,
+         повторяем с нарастающей задержкой */
+      if (attempt < MAX_RETRIES && error.code === 'permission-denied') {
+        await new Promise(r => setTimeout(r, 1500 * attempt))
+        continue
+      }
+      return { error: 'Не удалось сохранить данные пользователя' }
+    }
   }
 }
 
