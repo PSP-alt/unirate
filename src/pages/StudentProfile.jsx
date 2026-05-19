@@ -14,7 +14,7 @@ import {
   Star, MessageSquare, Calendar, Trophy, BookOpen, BarChart2,
   Bookmark, Settings, LogOut, Camera, Lock, User, ChevronRight,
   TrendingUp, Award, Flame, Shield, Zap, Eye, FileText,
-  Ban, Clock, History, Share2, Edit3, Check,
+  Ban, Clock, History, Edit3, Check,
 } from 'lucide-react'
 
 /* ════════════════════════════════════════════════════════════
@@ -134,7 +134,6 @@ export default function StudentProfile() {
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadError, setUploadError] = useState('')
-  const [copied, setCopied] = useState(false)
 
   const [form, setForm] = useState({ firstName:'', lastName:'', middleName:'', nickname:'', bio:'', course:1 })
   const [saving, setSaving] = useState(false)
@@ -271,12 +270,6 @@ export default function StudentProfile() {
     setTimeout(() => setPwMsg(''), 4000)
   }
 
-  async function copyProfileLink() {
-    try {
-      await navigator.clipboard.writeText(`${location.origin}/profile`)
-      setCopied(true); setTimeout(() => setCopied(false), 1500)
-    } catch {}
-  }
 
   if (!userData) return (
     <div className="min-h-screen bg-[#1A1613] flex items-center justify-center">
@@ -553,13 +546,6 @@ export default function StudentProfile() {
               >
                 <Edit3 size={14} />
                 Редактировать
-              </button>
-              <button
-                onClick={copyProfileLink}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full border border-[#3A322A] bg-[#1A1613] hover:bg-[#2E2824] text-[13px] font-medium text-[#E6D9C9] transition-colors"
-              >
-                {copied ? <Check size={14} /> : <Share2 size={14} />}
-                {copied ? 'Скопировано' : 'Поделиться профилем'}
               </button>
 
               {/* Кастомизация цвета */}
