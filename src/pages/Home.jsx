@@ -56,7 +56,7 @@ export default function Home() {
     }
 
     loadCount(query(collection(db, 'users'),    where('role', '==', 'student')),    'students')
-    loadCount(query(collection(db, 'teachers'), where('isDeleted', '!=', true)),      'teachers')
+    loadCount(collection(db, 'teachers'),                                            'teachers')
     loadCount(query(collection(db, 'ratings'),  where('status', '==', 'approved')), 'ratings')
 
     return () => { cancelled = true }
@@ -69,6 +69,11 @@ export default function Home() {
       try {
         const { teachers: list } = await getTeachers()
         if (cancelled) return
+
+        /* Обновляем счётчик преподавателей точным значением
+           (getTeachers уже фильтрует isDeleted) */
+        setStats(s => ({ ...s, teachers: list.length }))
+
         if (!list?.length) {
           setFeatured({ status: 'empty', data: null })
           return
