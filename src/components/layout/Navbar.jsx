@@ -98,11 +98,6 @@ export default function Navbar() {
             <span className={theme.text}>Uni</span>
             <span className="text-[var(--color-rust)]">rate</span>
           </Link>
-          <span className={`hidden sm:inline-flex items-center gap-2 h-7 px-3 rounded-full border ${theme.pillBorder} ${theme.pillBg} text-[10px] font-semibold tracking-[0.18em] uppercase ${theme.textMuted}`}>
-            <span>Платформа</span>
-            <span className="opacity-40">·</span>
-            <span>с 2026</span>
-          </span>
         </div>
 
         {/* ── Центр: ссылки ── */}
