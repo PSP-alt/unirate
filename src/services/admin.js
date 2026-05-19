@@ -430,6 +430,31 @@ export async function deleteUserAccount(userId) {
   }
 }
 
+/* ── Удалить «призрачных» преподавателей без записи в users ── */
+export async function cleanupOrphanedTeachers() {
+  try {
+    const teachersSnap = await getDocs(collection(db, 'teachers'))
+    const orphaned = []
+
+    for (const teacherDoc of teachersSnap.docs) {
+      const userDoc = await getDoc(doc(db, 'users', teacherDoc.id))
+      if (!userDoc.exists()) {
+        const d = teacherDoc.data()
+        orphaned.push({
+          id: teacherDoc.id,
+          name: [d.lastName, d.firstName].filter(Boolean).join(' ') || teacherDoc.id,
+        })
+        await deleteDoc(doc(db, 'teachers', teacherDoc.id))
+      }
+    }
+
+    return { deleted: orphaned, error: null }
+  } catch (err) {
+    console.error('[cleanupOrphanedTeachers]', err)
+    return { deleted: [], error: 'Ошибка при очистке' }
+  }
+}
+
 /* ── Массовое одобрение всех pending оценок ── */
 export async function bulkApproveAllPending() {
   try {

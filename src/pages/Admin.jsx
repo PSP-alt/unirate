@@ -33,6 +33,7 @@ import {
   getAllMaterialsAdmin, deleteMaterialAdmin, bulkApproveAllPending,
   getRecentRatings, blockUserTemporarily, unblockUser, deleteUserAccount,
   getAllSupportMessages, markSupportRead, resolveSupportMessage, deleteSupportMessage,
+  cleanupOrphanedTeachers,
 } from '../services/admin'
 
 /* ─── Constants ─── */
@@ -210,6 +211,16 @@ export default function Admin() {
     setPendingRatings([])
     setStats(s => s ? { ...s, pendingRatings: 0, approvedRatings: (s.approvedRatings || 0) + count } : s)
     toast.success(`Одобрено ${count} отзывов`)
+  }
+
+  async function handleCleanupOrphans() {
+    const { deleted, error } = await cleanupOrphanedTeachers()
+    if (error) { toast.error(error); return }
+    if (deleted.length === 0) {
+      toast.success('Нет призрачных преподавателей')
+    } else {
+      toast.success(`Удалено ${deleted.length}: ${deleted.map(d => d.name).join(', ')}`)
+    }
   }
 
   /* ═══ FLAGGED ACTIONS ═══ */
@@ -518,6 +529,16 @@ export default function Admin() {
                       </div>
                     )
                   })}
+                </div>
+
+                {/* Quick actions */}
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={handleCleanupOrphans}
+                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-[var(--color-paper)] border border-[var(--color-sepia)] text-[var(--color-ink)] hover:border-[var(--color-rust)]/40 transition-colors"
+                  >
+                    Очистить призрачных преподавателей
+                  </button>
                 </div>
 
                 {/* Activity chart */}
