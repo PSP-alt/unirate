@@ -74,16 +74,6 @@ export default function Footer() {
                   Поддержка
                 </Link>
               </li>
-              <li>
-                <a href="mailto:support@unirate.ru" className="text-[14px] text-[#E6D9C9] hover:text-[var(--color-rust)] transition-colors">
-                  support@unirate.ru
-                </a>
-              </li>
-              <li>
-                <a href="https://t.me/unirate_spb" target="_blank" rel="noreferrer" className="text-[14px] text-[#E6D9C9] hover:text-[var(--color-rust)] transition-colors">
-                  @unirate_spb
-                </a>
-              </li>
             </ul>
           </div>
         </div>
