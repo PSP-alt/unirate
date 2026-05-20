@@ -1102,6 +1102,138 @@ export default function Admin() {
               </div>
             )}
 
+            {/* ════════════════════ ПОДДЕРЖКА ════════════════════ */}
+            {section === 'support' && (
+              <div className="space-y-6 animate-fade-up">
+                <div className="flex items-center justify-between">
+                  <SectionTitle icon={MessageSquarePlus} title="Обращения в поддержку" />
+                  <div className="flex gap-2">
+                    {['complaints', 'suggestions'].map(tab => (
+                      <button key={tab} onClick={() => setSupportTab(tab)}
+                        className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all ${
+                          supportTab === tab
+                            ? 'bg-[var(--color-rust)] text-[#FFFDF7]'
+                            : 'bg-[var(--color-paper-2)] text-[var(--color-muted)] hover:text-[var(--color-ink)]'
+                        }`}
+                      >
+                        {tab === 'complaints' ? 'Жалобы' : 'Предложения'}
+                        {(() => {
+                          const cnt = supportMessages.filter(m => m.type === (tab === 'complaints' ? 'complaint' : 'suggestion') && m.status === 'new').length
+                          return cnt > 0 ? ` (${cnt})` : ''
+                        })()}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {(() => {
+                  const typeFilter = supportTab === 'complaints' ? 'complaint' : 'suggestion'
+                  const filtered = supportMessages
+                    .filter(m => m.type === typeFilter)
+                    .sort((a, b) => {
+                      const order = { new: 0, read: 1, resolved: 2 }
+                      return (order[a.status] ?? 3) - (order[b.status] ?? 3)
+                        || (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0)
+                    })
+
+                  if (filtered.length === 0) {
+                    return <EmptyState icon={MessageSquarePlus} text={`Нет ${supportTab === 'complaints' ? 'жалоб' : 'предложений'}`} />
+                  }
+
+                  return (
+                    <div className="space-y-3">
+                      {filtered.map(msg => {
+                        const isExpanded = supportExpanded === msg.id
+                        const isReplying = replyingId === msg.id
+                        const statusBadge =
+                          msg.status === 'new'      ? { label: 'Новое',    cls: 'bg-[var(--color-rust)]/15 text-[var(--color-rust)]' } :
+                          msg.status === 'read'     ? { label: 'Прочитано', cls: 'bg-blue-500/15 text-blue-400' } :
+                                                      { label: 'Решено',    cls: 'bg-emerald-500/15 text-emerald-400' }
+                        return (
+                          <div key={msg.id} className="bg-[var(--color-paper)] rounded-2xl border border-[var(--color-sepia)] overflow-hidden">
+                            {/* Header */}
+                            <div className="px-5 py-4 flex items-start justify-between gap-3 cursor-pointer"
+                              onClick={() => {
+                                setSupportExpanded(isExpanded ? null : msg.id)
+                                if (msg.status === 'new') handleMarkRead(msg.id)
+                              }}
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${statusBadge.cls}`}>
+                                    {statusBadge.label}
+                                  </span>
+                                  <span className="text-[10px] text-[var(--color-muted)]">{formatDate(msg.createdAt)}</span>
+                                </div>
+                                <p className="text-sm font-semibold text-[var(--color-ink)] truncate">{msg.subject}</p>
+                                <p className="text-xs text-[var(--color-muted)] mt-0.5">
+                                  {msg.userName || 'Аноним'} · {msg.userEmail}
+                                </p>
+                              </div>
+                              <ChevronDown size={16} className={`text-[var(--color-muted)] transition-transform flex-shrink-0 mt-1 ${isExpanded ? 'rotate-180' : ''}`} />
+                            </div>
+
+                            {/* Body */}
+                            {isExpanded && (
+                              <div className="px-5 pb-5 border-t border-[var(--color-sepia)] pt-4 space-y-3">
+                                <div className="bg-[var(--color-paper-2)]/50 rounded-xl p-4">
+                                  <p className="text-sm text-[var(--color-ink)] whitespace-pre-wrap">{msg.message}</p>
+                                </div>
+
+                                {/* Ответ админа (если есть) */}
+                                {msg.adminResponse && (
+                                  <div className="bg-emerald-500/10 rounded-xl p-4">
+                                    <p className="text-[11px] font-semibold text-emerald-400 mb-1">Ответ администратора</p>
+                                    <p className="text-sm text-[var(--color-ink)]">{msg.adminResponse}</p>
+                                  </div>
+                                )}
+
+                                {/* Форма ответа */}
+                                {isReplying ? (
+                                  <div className="space-y-2">
+                                    <textarea
+                                      value={replyText}
+                                      onChange={e => setReplyText(e.target.value)}
+                                      placeholder="Напишите ответ пользователю..."
+                                      rows={3}
+                                      className="w-full px-3 py-2 text-sm bg-[var(--color-paper-2)]/50 border border-[var(--color-sepia)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-rust)]/20 resize-none text-[var(--color-ink)]"
+                                    />
+                                    <div className="flex gap-2">
+                                      <button onClick={() => handleReplySupport(msg.id)}
+                                        className="flex items-center gap-1.5 px-4 py-2 bg-[var(--color-ok)] hover:brightness-95 text-[#FFFDF7] text-xs font-bold rounded-xl transition-all">
+                                        <Send size={13} /> Отправить
+                                      </button>
+                                      <button onClick={() => { setReplyingId(null); setReplyText('') }}
+                                        className="px-4 py-2 bg-[var(--color-paper-2)] text-[var(--color-ink)] text-xs font-medium rounded-xl transition-all">
+                                        Отмена
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="flex gap-2">
+                                    {msg.status !== 'resolved' && (
+                                      <button onClick={() => { setReplyingId(msg.id); setReplyText('') }}
+                                        className="flex items-center gap-1.5 px-4 py-2 bg-[var(--color-rust)] hover:brightness-95 text-[#FFFDF7] text-xs font-bold rounded-xl transition-all">
+                                        <MessageCircle size={13} /> Ответить
+                                      </button>
+                                    )}
+                                    <button onClick={() => handleDeleteSupport(msg.id, msg.subject)}
+                                      className="flex items-center gap-1.5 px-4 py-2 bg-[var(--color-danger)]/8 hover:bg-[var(--color-danger)]/15 text-[var(--color-danger)] text-xs font-semibold rounded-xl transition-all">
+                                      <Trash2 size={13} /> Удалить
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                })()}
+              </div>
+            )}
+
           </main>
         </div>
       </div>
