@@ -478,7 +478,8 @@ export default function TeacherProfile() {
     if (!file || !teacher) return
     if (file.size > 5 * 1024 * 1024) { setUploadError('Макс. 5 MB'); return }
     setUploading(true); setUploadError('')
-    const storageRef = ref(storage, `teacher-avatars/${teacher.id}`)
+    const ext = file.name.split('.').pop() || 'jpg'
+    const storageRef = ref(storage, `teacher-avatars/${teacher.id}/avatar.${ext}`)
     const task = uploadBytesResumable(storageRef, file)
     task.on('state_changed',
       s => setUploadProgress(Math.round(s.bytesTransferred / s.totalBytes * 100)),

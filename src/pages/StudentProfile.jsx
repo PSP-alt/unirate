@@ -230,7 +230,8 @@ export default function StudentProfile() {
     if (file.size > 5 * 1024 * 1024) { setUploadError('Файл слишком большой (макс. 5 MB)'); return }
     setUploading(true); setUploadError('')
     try {
-      const task = uploadBytesResumable(ref(storage, `avatars/${user.uid}`), file)
+      const ext = file.name.split('.').pop() || 'jpg'
+      const task = uploadBytesResumable(ref(storage, `avatars/${user.uid}/avatar.${ext}`), file)
       task.on('state_changed',
         s => setUploadProgress(Math.round(s.bytesTransferred/s.totalBytes*100)),
         err => { setUploadError(`Ошибка: ${err.code}`); setUploading(false); setUploadProgress(0) },
