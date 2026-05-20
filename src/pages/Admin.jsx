@@ -1106,7 +1106,7 @@ export default function Admin() {
             {section === 'support' && (
               <div className="space-y-6 animate-fade-up">
                 <div className="flex items-center justify-between">
-                  <SectionTitle icon={MessageSquarePlus} title="Обращения в поддержку" />
+                  <SectionHeader icon={MessageSquarePlus} title="Обращения в поддержку" />
                   <div className="flex gap-2">
                     {['complaints', 'suggestions'].map(tab => (
                       <button key={tab} onClick={() => setSupportTab(tab)}
