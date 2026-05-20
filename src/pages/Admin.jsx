@@ -632,21 +632,26 @@ export default function Admin() {
                   <EmptyState icon={CheckCircle} text="Нет отзывов на модерации" />
                 ) : (
                   <div className="space-y-4">
-                    {pendingRatings.map(r => (
-                      <RatingCard
-                        key={r.id}
-                        rating={r}
-                        expanded={expandedRating === r.id}
-                        onToggleExpand={() => setExpandedRating(expandedRating === r.id ? null : r.id)}
-                        rejectingId={rejectingId}
-                        rejectReason={rejectReason}
-                        setRejectReason={setRejectReason}
-                        onApprove={() => handleApprove(r.id)}
-                        onStartReject={() => { setRejectingId(r.id); setRejectReason('') }}
-                        onConfirmReject={() => handleReject(r.id)}
-                        onCancelReject={() => { setRejectingId(null); setRejectReason('') }}
-                      />
-                    ))}
+                    {pendingRatings.map(r => {
+                      const t = allTeachers.find(t => t.id === r.teacherId)
+                      const tName = t ? [t.lastName, t.firstName, t.middleName].filter(Boolean).join(' ') : r.teacherId
+                      return (
+                        <RatingCard
+                          key={r.id}
+                          rating={r}
+                          teacherName={tName}
+                          expanded={expandedRating === r.id}
+                          onToggleExpand={() => setExpandedRating(expandedRating === r.id ? null : r.id)}
+                          rejectingId={rejectingId}
+                          rejectReason={rejectReason}
+                          setRejectReason={setRejectReason}
+                          onApprove={() => handleApprove(r.id)}
+                          onStartReject={() => { setRejectingId(r.id); setRejectReason('') }}
+                          onConfirmReject={() => handleReject(r.id)}
+                          onCancelReject={() => { setRejectingId(null); setRejectReason('') }}
+                        />
+                      )
+                    })}
                   </div>
                 )}
               </div>
@@ -1291,99 +1296,143 @@ function ActionBtn({ icon: Icon, label, color, onClick }) {
   )
 }
 
+/* ═══ Словарь ключей критериев → русский ═══ */
+const CRITERIA_LABELS = {
+  clarity: 'Ясность изложения', depth: 'Глубина темы', engagement: 'Удержание внимания',
+  accessibility: 'Доступность для вопросов', relevance: 'Актуальность материала',
+  materials_quality: 'Качество материалов', task_clarity: 'Чёткость задач',
+  help: 'Помощь при затруднениях', feedback: 'Обратная связь', fairness: 'Справедливость',
+  practical: 'Практическая применимость', pacing: 'Темп занятия',
+  discussion: 'Организация дискуссии', inclusion: 'Вовлечение группы',
+  theory_practice: 'Связь теории с практикой', preparation: 'Подготовленность',
+  atmosphere: 'Атмосфера', cases: 'Полезность кейсов',
+  availability: 'Доступность', feedback_quality: 'Качество обратной связи',
+  topic_help: 'Помощь с темой', expertise: 'Научная экспертиза',
+  motivation: 'Мотивация', reliability: 'Соблюдение договорённостей',
+  professionalism: 'Профессионализм', explaining: 'Умение объяснять',
+  attitude: 'Отношение к студентам', organization: 'Организованность',
+  passion: 'Интерес к предмету', usefulness: 'Польза от занятий',
+}
+const TEACHER_ROLE_LABELS = {
+  lecturer: 'Лектор', seminar: 'Семинарист', practice: 'Практик',
+  supervisor: 'Научрук', both: 'Лектор + Семинарист', universal: 'Преподаватель',
+}
+
 /* ════════ RatingCard — полная карточка отзыва для модерации ════════ */
 function RatingCard({ rating: r, expanded, onToggleExpand, rejectingId, rejectReason,
-  setRejectReason, onApprove, onStartReject, onConfirmReject, onCancelReject }) {
+  setRejectReason, onApprove, onStartReject, onConfirmReject, onCancelReject, teacherName }) {
 
   const isRejecting = rejectingId === r.id
-  const allComments = [r.positiveComment, r.negativeComment, r.comment].filter(Boolean).join(' ')
+
+  /* Цвет оценки */
+  const score = Number(r.averageScore || 0)
+  const scoreClr =
+    score >= 8 ? 'text-emerald-400' :
+    score >= 5 ? 'text-amber-400'   : 'text-red-400'
 
   return (
     <div className="bg-[var(--color-paper)] rounded-2xl border border-[var(--color-sepia)] overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col items-center">
-            <span className="text-2xl font-bold text-[var(--color-rust)]">{Number(r.averageScore || 0).toFixed(1)}</span>
-            <span className="text-[10px] text-[var(--color-muted)]">/10</span>
-          </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2 mb-0.5">
-              {r.discipline && (
-                <span className="text-xs px-2 py-0.5 bg-[var(--color-rust-wash)] text-[var(--color-rust)] rounded-full">{r.discipline}</span>
-              )}
-              {r.semester && (
-                <span className="text-xs px-2 py-0.5 bg-[var(--color-paper-2)] text-[var(--color-muted)] rounded-full">{r.semester}</span>
-              )}
-              {r.nps && (
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${NPS_COLORS[r.nps]}`}>{NPS_LABELS[r.nps]}</span>
-              )}
+      <div className="px-5 py-4">
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col items-center">
+              <span className={`text-2xl font-bold ${scoreClr}`}>{score.toFixed(1)}</span>
+              <span className="text-[10px] text-[var(--color-muted)]">/10</span>
             </div>
-            <p className="text-xs text-[var(--color-muted)]">
-              Студент {r.studentCourse ? `${r.studentCourse} курса` : ''} · {formatDate(r.createdAt)}
-              {r.isAnonymous ? ' · Анонимно' : ''}
-            </p>
+            <div>
+              {teacherName && (
+                <p className="text-sm font-semibold text-[var(--color-ink)] mb-0.5">{teacherName}</p>
+              )}
+              <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
+                {r.discipline && (
+                  <span className="text-[11px] px-2 py-0.5 bg-[var(--color-rust-wash)] text-[var(--color-rust)] rounded-full">{r.discipline}</span>
+                )}
+                {r.semester && (
+                  <span className="text-[11px] px-2 py-0.5 bg-[var(--color-paper-2)] text-[var(--color-muted)] rounded-full">{r.semester}</span>
+                )}
+                {r.teacherRole && (
+                  <span className="text-[11px] px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded-full">
+                    {TEACHER_ROLE_LABELS[r.teacherRole] || r.teacherRole}
+                  </span>
+                )}
+                {r.nps && (
+                  <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${NPS_COLORS[r.nps]}`}>{NPS_LABELS[r.nps]}</span>
+                )}
+              </div>
+              <p className="text-xs text-[var(--color-muted)]">
+                Студент {r.studentCourse ? `${r.studentCourse} курса` : ''} · {formatDate(r.createdAt)}
+                {r.isAnonymous ? ' · Анонимно' : ''}
+                {r.attendanceLevel ? ` · Посещаемость: ${ATTENDANCE_LABELS[r.attendanceLevel] || r.attendanceLevel}` : ''}
+              </p>
+            </div>
           </div>
+          <button onClick={onToggleExpand}
+            className="p-2 hover:bg-[var(--color-paper-2)]/50 rounded-xl transition-colors text-[var(--color-muted)]">
+            <ChevronDown size={16} className={`transition-transform ${expanded ? 'rotate-180' : ''}`} />
+          </button>
         </div>
-        <button onClick={onToggleExpand}
-          className="p-2 hover:bg-[var(--color-paper-2)]/50 rounded-xl transition-colors text-[var(--color-muted)]">
-          <ChevronDown size={16} className={`transition-transform ${expanded ? 'rotate-180' : ''}`} />
-        </button>
-      </div>
 
-      {/* Short preview of comment */}
-      {!expanded && allComments && (
-        <div className="px-5 pb-4">
-          <p className="text-sm text-[var(--color-ink)] line-clamp-2 bg-[var(--color-paper-2)]/50 rounded-xl px-3 py-2">{allComments}</p>
-        </div>
-      )}
-
-      {/* Expanded detail */}
-      {expanded && (
-        <div className="px-5 pb-5 border-t border-[var(--color-sepia)] pt-4 space-y-4">
-          {/* Comments */}
+        {/* Комментарии — всегда видны */}
+        <div className="space-y-2">
           {r.positiveComment && (
-            <div className="bg-[var(--color-ok)]/10 rounded-xl p-3">
-              <p className="text-xs font-semibold text-[var(--color-ok)] mb-1">👍 Плюсы</p>
-              <p className="text-sm text-[var(--color-ink)]">{r.positiveComment}</p>
+            <div className="bg-emerald-500/10 rounded-xl p-3">
+              <p className="text-[11px] font-semibold text-emerald-400 mb-1">+ Что понравилось</p>
+              <p className={`text-sm text-[var(--color-ink)] ${!expanded ? 'line-clamp-3' : ''}`}>{r.positiveComment}</p>
             </div>
           )}
           {r.negativeComment && (
-            <div className="bg-[var(--color-warn)]/10 rounded-xl p-3">
-              <p className="text-xs font-semibold text-[var(--color-warn)] mb-1">⚠️ Минусы</p>
-              <p className="text-sm text-[var(--color-ink)]">{r.negativeComment}</p>
+            <div className="bg-amber-500/10 rounded-xl p-3">
+              <p className="text-[11px] font-semibold text-amber-400 mb-1">− Что не понравилось</p>
+              <p className={`text-sm text-[var(--color-ink)] ${!expanded ? 'line-clamp-3' : ''}`}>{r.negativeComment}</p>
             </div>
           )}
           {!r.positiveComment && !r.negativeComment && r.comment && (
             <div className="bg-[var(--color-paper-2)]/50 rounded-xl p-3">
-              <p className="text-sm text-[var(--color-ink)]">{r.comment}</p>
+              <p className={`text-sm text-[var(--color-ink)] ${!expanded ? 'line-clamp-3' : ''}`}>{r.comment}</p>
             </div>
           )}
+        </div>
+      </div>
 
+      {/* Expanded detail — критерии */}
+      {expanded && (
+        <div className="px-5 pb-5 border-t border-[var(--color-sepia)] pt-4 space-y-4">
           {/* Criteria scores */}
           {r.criteriaScores && Object.keys(r.criteriaScores).length > 0 && (
             <div>
               <p className="text-xs font-semibold text-[var(--color-muted)] mb-2">Оценки по критериям</p>
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(r.criteriaScores).map(([k, v]) => (
-                  <span key={k} className="text-xs bg-[var(--color-paper-2)] rounded-lg px-2.5 py-1">
-                    <span className="text-[var(--color-muted)]">{k}:</span>{' '}
-                    <strong className="text-[var(--color-ink)]">{v ?? '—'}</strong>
-                  </span>
-                ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {Object.entries(r.criteriaScores).map(([k, v]) => {
+                  const label = CRITERIA_LABELS[k] || k
+                  const val = v ?? 0
+                  const barClr = val >= 8 ? 'bg-emerald-400' : val >= 5 ? 'bg-amber-400' : 'bg-red-400'
+                  return (
+                    <div key={k} className="bg-[var(--color-paper-2)] rounded-lg px-3 py-2">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-[11px] text-[var(--color-muted)]">{label}</span>
+                        <span className="text-[11px] font-bold text-[var(--color-ink)]">{v ?? '—'}</span>
+                      </div>
+                      <div className="h-1 bg-[var(--color-sepia)] rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full ${barClr}`} style={{ width: `${val * 10}%` }} />
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}
 
-          {/* Meta */}
+          {/* Доп. информация */}
           <div className="flex flex-wrap gap-3 text-xs text-[var(--color-muted)]">
-            {r.teacherRole && (
-              <span>Роль: <strong className="text-[var(--color-ink)]">
-                {r.teacherRole === 'lecturer' ? 'Лектор' : r.teacherRole === 'seminar' ? 'Семинарист' : r.teacherRole === 'both' ? 'Лектор+Семинарист' : 'Неизвестно'}
-              </strong></span>
+            {r.courseScore && (
+              <span>Оценка курса: <strong className="text-[var(--color-ink)]">{r.courseScore}/10</strong></span>
             )}
-            {r.attendanceLevel && (
-              <span>Посещ.: <strong className="text-[var(--color-ink)]">{ATTENDANCE_LABELS[r.attendanceLevel] || r.attendanceLevel}</strong></span>
+            {r.attendanceLecture && (
+              <span>Посещ. лекций: <strong className="text-[var(--color-ink)]">{ATTENDANCE_LABELS[r.attendanceLecture] || r.attendanceLecture}</strong></span>
+            )}
+            {r.attendanceSeminar && (
+              <span>Посещ. семинаров: <strong className="text-[var(--color-ink)]">{ATTENDANCE_LABELS[r.attendanceSeminar] || r.attendanceSeminar}</strong></span>
             )}
           </div>
         </div>
