@@ -649,9 +649,9 @@ export default function TeacherProfile() {
             {/* Левая колонка — аватар и описание */}
             <div className="flex gap-4 sm:gap-6">
               {/* Avatar */}
-              <div className="relative flex-shrink-0">
+              <div className="relative w-[72px] h-[72px] sm:w-[104px] sm:h-[104px] flex-shrink-0">
                 <div
-                  className={`w-[72px] h-[72px] sm:w-[104px] sm:h-[104px] rounded-full overflow-hidden bg-[#3A322A] border border-[#3A322A] flex items-center justify-center ${isOwn ? 'cursor-pointer group' : ''}`}
+                  className={`relative w-full h-full rounded-full overflow-hidden bg-[#3A322A] border border-[#3A322A] flex items-center justify-center ${isOwn ? 'cursor-pointer group' : ''}`}
                   onClick={() => isOwn && fileRef.current?.click()}
                 >
                   {teacher.avatarUrl ? (
@@ -670,7 +670,7 @@ export default function TeacherProfile() {
                     </div>
                   )}
                 </div>
-                <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-[#24201C] ${activityColor}`} title={activityLabel} />
+                <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-[#24201C] ${activityColor} z-10`} title={activityLabel} />
                 {isOwn && <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />}
               </div>
 

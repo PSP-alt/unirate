@@ -448,9 +448,9 @@ export default function StudentProfile() {
 
             {/* ── Левая колонка: аватар ── */}
             <div className="flex md:flex-col items-center md:items-stretch gap-4 md:w-48 flex-shrink-0">
-              <div className="relative group cursor-pointer flex-shrink-0" onClick={() => fileRef.current?.click()}>
+              <div className="relative w-32 h-32 md:w-44 md:h-44 flex-shrink-0 group cursor-pointer" onClick={() => fileRef.current?.click()}>
                 <div
-                  className="w-32 h-32 md:w-44 md:h-44 rounded-full bg-[#1A1613] overflow-hidden flex items-center justify-center transition-colors"
+                  className="relative w-full h-full rounded-full bg-[#1A1613] overflow-hidden flex items-center justify-center transition-colors"
                   style={{ boxShadow: `inset 0 0 0 2px ${theme.ring}` }}
                 >
                   {userData.avatarUrl
@@ -467,7 +467,7 @@ export default function StudentProfile() {
                 </div>
                 {/* Бейдж уровня — тонируется темой */}
                 <div
-                  className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full border-2 border-[#24201C] flex items-center justify-center font-display italic text-[#FFFDF7] text-sm leading-none transition-colors"
+                  className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full border-2 border-[#24201C] flex items-center justify-center font-display italic text-[#FFFDF7] text-sm leading-none transition-colors z-10"
                   style={{ background: theme.swatch }}
                 >
                   {['I','II','III','IV','V','VI'][levelIdx]}
