@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { updateOwnUserProfile } from '../services/firestore'
+import { updateOwnUserProfile, updateUserDocument } from '../services/firestore'
 import { getStudentRatings } from '../services/ratings'
 import { getBookmarks } from '../services/bookmarks'
 import { getTeachers } from '../services/teachers'

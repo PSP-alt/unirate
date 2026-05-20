@@ -22,6 +22,19 @@ import {
 } from 'lucide-react'
 
 /* ── Constants ── */
+const FILE_CONFIG = {
+  pdf:  { icon: 'picture_as_pdf', bg: 'bg-red-500/10',    text: 'text-red-400'    },
+  docx: { icon: 'description',    bg: 'bg-blue-500/10',   text: 'text-blue-400'   },
+  doc:  { icon: 'description',    bg: 'bg-blue-500/10',   text: 'text-blue-400'   },
+  mp4:  { icon: 'play_circle',    bg: 'bg-purple-500/10', text: 'text-purple-400' },
+  webm: { icon: 'play_circle',    bg: 'bg-purple-500/10', text: 'text-purple-400' },
+  pptx: { icon: 'slideshow',      bg: 'bg-orange-500/10', text: 'text-orange-400' },
+  xlsx: { icon: 'table_chart',    bg: 'bg-green-500/10',  text: 'text-green-400'  },
+  txt:  { icon: 'article',        bg: 'bg-gray-500/10',   text: 'text-gray-400'   },
+  png:  { icon: 'image',          bg: 'bg-pink-500/10',   text: 'text-pink-400'   },
+  jpg:  { icon: 'image',          bg: 'bg-pink-500/10',   text: 'text-pink-400'   },
+  jpeg: { icon: 'image',          bg: 'bg-pink-500/10',   text: 'text-pink-400'   },
+}
 const AVATAR_GRADIENTS = [
   ['#6366f1','#8b5cf6'], ['#3b82f6','#0ea5e9'],
   ['#10b981','#14b8a6'], ['#f59e0b','#ef4444'],
@@ -48,8 +61,36 @@ function getGradient(name = '') {
   const g = AVATAR_GRADIENTS[(name.charCodeAt(0) || 0) % AVATAR_GRADIENTS.length]
   return `linear-gradient(135deg, ${g[0]}, ${g[1]})`
 }
+/* Извлечь расширение из MIME-типа или имени файла */
+function mimeToExt(mime = '') {
+  const map = {
+    'application/pdf': 'pdf',
+    'application/msword': 'doc',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+    'application/vnd.ms-excel': 'xlsx',
+    'application/vnd.ms-powerpoint': 'pptx',
+    'video/mp4': 'mp4',
+    'video/webm': 'webm',
+    'text/plain': 'txt',
+    'image/png': 'png',
+    'image/jpeg': 'jpg',
+    'image/webp': 'webp',
+  }
+  return map[mime.toLowerCase()] || mime.split('/').pop()?.split('.').pop() || ''
+}
+function getFileExt(material) {
+  /* Сначала пробуем из имени файла, потом из MIME */
+  if (material.fileName) {
+    const ext = material.fileName.split('.').pop()?.toLowerCase()
+    if (ext && ext.length <= 5) return ext
+  }
+  return mimeToExt(material.fileType || '')
+}
 function getFileConfig(ft = '') {
-  return FILE_CONFIG[ft?.toLowerCase()] || { icon: 'insert_drive_file', bg: 'bg-slate-100', text: 'text-slate-500' }
+  const ext = mimeToExt(ft)
+  return FILE_CONFIG[ext] || { icon: 'insert_drive_file', bg: 'bg-[#3A322A]', text: 'text-[#B8A999]' }
 }
 function timeAgo(ts) {
   if (!ts) return ''
@@ -2258,9 +2299,9 @@ function MaterialCard({ material, isBookmarked = false, onBookmark = null, bmPen
         <div className={`w-11 h-11 ${bg} ${text} rounded-xl flex items-center justify-center mb-3`}>
           <span className="material-symbols-outlined text-[20px]">{icon}</span>
         </div>
-        <h4 className="text-sm font-semibold text-[#F4EBDB] line-clamp-2 mb-1 pr-6">{material.title}</h4>
-        <p className="text-[11px] text-[#B8A999] uppercase tracking-wide">
-          {[material.discipline, material.fileType?.toUpperCase(), formatSize(material.fileSize)].filter(Boolean).join(' · ')}
+        <h4 className="text-sm font-semibold text-[#F4EBDB] line-clamp-2 mb-1 pr-6 break-words">{material.title}</h4>
+        <p className="text-[11px] text-[#B8A999] uppercase tracking-wide break-words">
+          {[material.discipline, getFileExt(material).toUpperCase(), formatSize(material.fileSize)].filter(Boolean).join(' · ')}
         </p>
         <div className="flex items-center justify-between mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
           <span className="text-xs text-[#B8A999]">{timeAgo(material.createdAt)}</span>
