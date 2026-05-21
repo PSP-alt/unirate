@@ -234,7 +234,7 @@ export default function StudentProfile() {
       const task = uploadBytesResumable(ref(storage, `avatars/${user.uid}/avatar.${ext}`), file)
       task.on('state_changed',
         s => setUploadProgress(Math.round(s.bytesTransferred/s.totalBytes*100)),
-        err => { setUploadError(`Ошибка: ${err.code}`); setUploading(false); setUploadProgress(0) },
+        err => { setUploadError('Не удалось загрузить фото. Попробуйте ещё раз.'); setUploading(false); setUploadProgress(0) },
         async () => {
           await updateUserDocument(user.uid, { avatarUrl: await getDownloadURL(task.snapshot.ref) })
           await refreshUserData()

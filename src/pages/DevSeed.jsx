@@ -22,12 +22,12 @@ import { CheckCircle, XCircle, Loader, Database, ChevronDown, ChevronUp, Trash2 
    ТЕСТОВЫЕ ДАННЫЕ
 ══════════════════════════════════ */
 
-const PASSWORD = '123456'
+const PASSWORD = import.meta.env.VITE_SEED_PASSWORD || 'seed_' + Math.random().toString(36).slice(2)
 
 /* ── Тестовый администратор ── */
 const ADMIN = {
-  email:     'admin@unirate.edu',
-  password:  'Admin2024!',
+  email:     import.meta.env.VITE_SEED_ADMIN_EMAIL || 'admin@unirate.edu',
+  password:  import.meta.env.VITE_SEED_ADMIN_PASSWORD || PASSWORD,
   firstName: 'Главный',
   lastName:  'Администратор',
 }
