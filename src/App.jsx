@@ -6,7 +6,7 @@
    ═══════════════════════════════════════════════════ */
 
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 
 /* При каждом переходе между страницами скроллим в начало */
 function ScrollToTop() {
@@ -32,10 +32,9 @@ import StudentProfile from './pages/StudentProfile'
 import TeacherDashboard from './pages/TeacherDashboard'
 import Admin from './pages/Admin'
 import MaterialUpload from './pages/MaterialUpload'
-/* DevSeed — импортируется и регистрируется ТОЛЬКО в dev-сборке.
-   В production это создавало публичную точку для создания admin@test.com / 123456. */
-import DevSeed from './pages/DevSeed'
+/* DevSeed — lazy import, не попадает в production-бандл */
 const IS_DEV = import.meta.env.DEV
+const DevSeed = IS_DEV ? lazy(() => import('./pages/DevSeed')) : null
 import About from './pages/About'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
@@ -76,7 +75,7 @@ export default function App() {
             <Route path="/teachers/:id" element={<TeacherProfile />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            {IS_DEV && <Route path="/dev/seed" element={<DevSeed />} />}
+            {IS_DEV && DevSeed && <Route path="/dev/seed" element={<Suspense fallback={<div className="p-12 text-center">Загрузка...</div>}><DevSeed /></Suspense>} />}
             <Route path="/about" element={<About />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
