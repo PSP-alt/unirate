@@ -12,6 +12,7 @@ import {
   getDoc,
   deleteDoc,
   doc,
+  addDoc,
   query,
   where,
   orderBy,
@@ -20,7 +21,7 @@ import {
   Timestamp,
   arrayUnion,
 } from 'firebase/firestore'
-import { ref, deleteObject } from 'firebase/storage'
+import { ref, deleteObject, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { db, storage } from './firebase'
 
 /* ═══ МОДЕРАЦИЯ ОЦЕНОК ═══ */
@@ -539,5 +540,60 @@ export async function getRecentRatings(days = 14) {
     return { ratings, error: null }
   } catch {
     return { ratings: [], error: null }
+  }
+}
+
+/* ═══ ЗАГРУЗКА МАТЕРИАЛОВ (АДМИН) ═══ */
+
+/* Загрузить файл материала от имени админа.
+   Админ может загружать от имени любого преподавателя. */
+export async function uploadMaterialAdmin({ file, title, description, discipline, course, teacherId, teacherName }, onProgress) {
+  try {
+    /* 1. Загружаем файл в Storage */
+    const ext = file.name.split('.').pop() || 'pdf'
+    const safeName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
+    const filePath = `materials/${teacherId}/${safeName}`
+    const fileRef = ref(storage, filePath)
+    const uploadTask = uploadBytesResumable(fileRef, file)
+
+    const fileUrl = await new Promise((resolve, reject) => {
+      uploadTask.on(
+        'state_changed',
+        (snap) => {
+          const progress = (snap.bytesTransferred / snap.totalBytes) * 100
+          if (onProgress) onProgress(progress)
+        },
+        reject,
+        async () => {
+          try {
+            const url = await getDownloadURL(uploadTask.snapshot.ref)
+            resolve(url)
+          } catch (err) { reject(err) }
+        },
+      )
+    })
+
+    /* 2. Создаём документ в Firestore */
+    const docRef = await addDoc(collection(db, 'materials'), {
+      title,
+      description: description || '',
+      discipline: discipline || '',
+      category: ext.toUpperCase() === 'PDF' ? 'lectures' : 'other',
+      courses: course ? [Number(course)] : ['all'],
+      teacherId,
+      teacherName: teacherName || '',
+      fileUrl,
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type || 'application/octet-stream',
+      storagePath: filePath,
+      downloadCount: 0,
+      createdAt: serverTimestamp(),
+    })
+
+    return { id: docRef.id, error: null }
+  } catch (err) {
+    console.error('[uploadMaterialAdmin]', err)
+    return { id: null, error: err.message || 'Ошибка загрузки материала' }
   }
 }

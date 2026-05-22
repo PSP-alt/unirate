@@ -248,6 +248,13 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // ═══════════════════ meta (публичные счётчики) ═══════════════════
+
+    match /meta/{docId} {
+      allow read: if true;    // публичные данные (счётчики платформы)
+      allow write: if isAdmin();
+    }
+
     // ═══════════════════ default deny ═══════════════════
 
     match /{document=**} {

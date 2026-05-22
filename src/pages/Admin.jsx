@@ -22,7 +22,7 @@ import {
   ToggleLeft, ToggleRight, Search, ChevronDown, Trash2, Eye,
   ThumbsUp, ThumbsDown, RefreshCw, UserCog, Zap, TrendingUp,
   Ban, UserX, LockOpen, Timer, MessageSquarePlus, Lightbulb,
-  Send, MessageCircle,
+  Send, MessageCircle, Upload, Plus, FileText, Loader,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import {
@@ -30,7 +30,7 @@ import {
   getAllUsers, toggleUserActive, getPendingTeachers, approveTeacher,
   getPlatformStats, getFlaggedRatings, dismissFlags, warnStudent,
   changeUserRole, deleteRatingPermanently, getAllTeachersFull,
-  getAllMaterialsAdmin, deleteMaterialAdmin, bulkApproveAllPending,
+  getAllMaterialsAdmin, deleteMaterialAdmin, uploadMaterialAdmin, bulkApproveAllPending,
   getRecentRatings, blockUserTemporarily, unblockUser, deleteUserAccount,
   getAllSupportMessages, markSupportRead, resolveSupportMessage, deleteSupportMessage,
   cleanupOrphanedTeachers,
@@ -125,6 +125,12 @@ export default function Admin() {
 
   /* Materials */
   const [matSearch,       setMatSearch]       = useState('')
+  const [showUploadForm,  setShowUploadForm]  = useState(false)
+  const [uploadData,      setUploadData]      = useState({
+    title: '', description: '', discipline: '', course: '', teacherId: '', file: null,
+  })
+  const [uploadProgress,  setUploadProgress]  = useState(0)
+  const [uploading,       setUploading]       = useState(false)
 
   /* Support */
   const [supportTab,      setSupportTab]      = useState('complaints')  // complaints | suggestions
@@ -357,6 +363,45 @@ export default function Admin() {
 
   async function handleDeleteMaterial(matId, storagePath, title) {
     setDeleteTarget({ id: matId, name: title || 'материал', type: 'material', storagePath })
+  }
+
+  async function handleUploadMaterial(e) {
+    e.preventDefault()
+    if (!uploadData.file || !uploadData.title.trim()) {
+      toast.error('Укажите название и выберите файл')
+      return
+    }
+    setUploading(true)
+    setUploadProgress(0)
+
+    /* Определяем имя преподавателя по teacherId */
+    const teacher = allTeachers.find(t => t.id === uploadData.teacherId)
+    const teacherName = teacher
+      ? `${teacher.lastName || ''} ${(teacher.firstName || '')[0] || ''}. ${(teacher.middleName || '')[0] ? (teacher.middleName[0] + '.') : ''}`.trim()
+      : 'Администратор'
+
+    const { error } = await uploadMaterialAdmin({
+      file: uploadData.file,
+      title: uploadData.title.trim(),
+      description: uploadData.description.trim(),
+      discipline: uploadData.discipline.trim(),
+      course: uploadData.course,
+      teacherId: uploadData.teacherId || user.uid,
+      teacherName,
+    }, (p) => setUploadProgress(Math.round(p)))
+
+    setUploading(false)
+    if (error) {
+      toast.error(error)
+    } else {
+      toast.success('Материал загружен!')
+      setShowUploadForm(false)
+      setUploadData({ title: '', description: '', discipline: '', course: '', teacherId: '', file: null })
+      setUploadProgress(0)
+      /* Обновляем список */
+      const res = await getAllMaterialsAdmin()
+      if (!res.error) setMaterials(res.materials)
+    }
   }
 
   /* ═══ FILTERS ═══ */
@@ -1031,7 +1076,137 @@ export default function Admin() {
             {/* ════════ MATERIALS ════════ */}
             {section === 'materials' && (
               <div className="space-y-5">
-                <SectionHeader title="Материалы" icon={FolderOpen} count={materials.length} />
+                <div className="flex items-center justify-between">
+                  <SectionHeader title="Материалы" icon={FolderOpen} count={materials.length} />
+                  <button
+                    onClick={() => setShowUploadForm(!showUploadForm)}
+                    className="flex items-center gap-2 px-4 py-2 bg-[var(--color-rust)] text-white text-sm font-semibold rounded-xl hover:bg-[#C55830] transition-colors"
+                  >
+                    <Plus size={16} />
+                    Загрузить
+                  </button>
+                </div>
+
+                {/* ── Форма загрузки ── */}
+                {showUploadForm && (
+                  <form onSubmit={handleUploadMaterial} className="bg-[var(--color-paper)] border border-[var(--color-sepia)] rounded-2xl p-5 space-y-4">
+                    <h3 className="font-semibold text-[var(--color-ink)] flex items-center gap-2">
+                      <Upload size={16} className="text-[var(--color-rust)]" />
+                      Загрузка материала
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Название *</label>
+                        <input
+                          value={uploadData.title}
+                          onChange={e => setUploadData(d => ({ ...d, title: e.target.value }))}
+                          placeholder="Конспект лекций по математике"
+                          className="w-full px-3 py-2 bg-[var(--color-cream)] border border-[var(--color-sepia)] rounded-xl text-sm focus:outline-none focus:border-[var(--color-rust)]"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Дисциплина</label>
+                        <input
+                          value={uploadData.discipline}
+                          onChange={e => setUploadData(d => ({ ...d, discipline: e.target.value }))}
+                          placeholder="Высшая математика"
+                          className="w-full px-3 py-2 bg-[var(--color-cream)] border border-[var(--color-sepia)] rounded-xl text-sm focus:outline-none focus:border-[var(--color-rust)]"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Описание</label>
+                      <textarea
+                        value={uploadData.description}
+                        onChange={e => setUploadData(d => ({ ...d, description: e.target.value }))}
+                        placeholder="Краткое описание содержания..."
+                        rows={2}
+                        className="w-full px-3 py-2 bg-[var(--color-cream)] border border-[var(--color-sepia)] rounded-xl text-sm focus:outline-none focus:border-[var(--color-rust)] resize-none"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Курс</label>
+                        <select
+                          value={uploadData.course}
+                          onChange={e => setUploadData(d => ({ ...d, course: e.target.value }))}
+                          className="w-full px-3 py-2 bg-[var(--color-cream)] border border-[var(--color-sepia)] rounded-xl text-sm focus:outline-none focus:border-[var(--color-rust)]"
+                        >
+                          <option value="">Все курсы</option>
+                          <option value="1">1 курс</option>
+                          <option value="2">2 курс</option>
+                          <option value="3">3 курс</option>
+                          <option value="4">4 курс</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Преподаватель</label>
+                        <select
+                          value={uploadData.teacherId}
+                          onChange={e => setUploadData(d => ({ ...d, teacherId: e.target.value }))}
+                          className="w-full px-3 py-2 bg-[var(--color-cream)] border border-[var(--color-sepia)] rounded-xl text-sm focus:outline-none focus:border-[var(--color-rust)]"
+                        >
+                          <option value="">— От имени админа —</option>
+                          {allTeachers.map(t => (
+                            <option key={t.id} value={t.id}>
+                              {t.lastName} {t.firstName} {t.middleName || ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Файл *</label>
+                      <label className="flex items-center gap-3 px-4 py-3 bg-[var(--color-cream)] border-2 border-dashed border-[var(--color-sepia)] rounded-xl cursor-pointer hover:border-[var(--color-rust)] transition-colors">
+                        <FileText size={20} className="text-[var(--color-muted)]" />
+                        <span className="text-sm text-[var(--color-muted)]">
+                          {uploadData.file ? `${uploadData.file.name} (${(uploadData.file.size / 1024 / 1024).toFixed(1)} МБ)` : 'Выберите файл (PDF, DOCX, PPTX — до 50 МБ)'}
+                        </span>
+                        <input
+                          type="file"
+                          accept=".pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.txt,.zip"
+                          onChange={e => setUploadData(d => ({ ...d, file: e.target.files?.[0] || null }))}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+
+                    {uploading && (
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs text-[var(--color-muted)]">
+                          <span>Загрузка...</span>
+                          <span>{uploadProgress}%</span>
+                        </div>
+                        <div className="h-2 bg-[var(--color-sepia)] rounded-full overflow-hidden">
+                          <div className="h-full bg-[var(--color-rust)] rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-3 pt-1">
+                      <button
+                        type="submit"
+                        disabled={uploading || !uploadData.file || !uploadData.title.trim()}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-rust)] text-white text-sm font-semibold rounded-xl hover:bg-[#C55830] transition-colors disabled:opacity-50"
+                      >
+                        {uploading ? <Loader size={15} className="animate-spin" /> : <Upload size={15} />}
+                        {uploading ? 'Загружаем...' : 'Загрузить материал'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setShowUploadForm(false); setUploadData({ title: '', description: '', discipline: '', course: '', teacherId: '', file: null }) }}
+                        className="px-4 py-2.5 text-sm text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors"
+                      >
+                        Отмена
+                      </button>
+                    </div>
+                  </form>
+                )}
 
                 <div className="relative">
                   <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-muted)]" />

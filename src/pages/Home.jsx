@@ -55,9 +55,27 @@ export default function Home() {
       }
     }
 
-    loadCount(query(collection(db, 'users'),    where('role', '==', 'student')),    'students')
-    loadCount(collection(db, 'teachers'),                                            'teachers')
-    loadCount(query(collection(db, 'ratings'),  where('status', '==', 'approved')), 'ratings')
+    /* Публичный счётчик (meta/counters) — доступен без авторизации.
+       Если его нет — фоллбек на прямой запрос users (требует auth). */
+    ;(async () => {
+      try {
+        const { getDoc, doc: firestoreDoc } = await import('firebase/firestore')
+        const snap = await getDoc(firestoreDoc(db, 'meta', 'counters'))
+        if (!cancelled && snap.exists()) {
+          const d = snap.data()
+          if (d.students != null) setStats(s => ({ ...s, students: d.students }))
+          if (d.ratings  != null) setStats(s => ({ ...s, ratings:  d.ratings }))
+        } else {
+          /* Фоллбек — прямые запросы (нужна авторизация) */
+          loadCount(query(collection(db, 'users'), where('role', '==', 'student')), 'students')
+          loadCount(query(collection(db, 'ratings'), where('status', '==', 'approved')), 'ratings')
+        }
+      } catch {
+        loadCount(query(collection(db, 'users'), where('role', '==', 'student')), 'students')
+        loadCount(query(collection(db, 'ratings'), where('status', '==', 'approved')), 'ratings')
+      }
+    })()
+    loadCount(collection(db, 'teachers'), 'teachers')
 
     return () => { cancelled = true }
   }, [])

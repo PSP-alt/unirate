@@ -16,6 +16,7 @@ import {
   where,
   getDocs,
   limit,
+  increment,
 } from 'firebase/firestore'
 import { db } from './firebase'
 
@@ -65,6 +66,11 @@ export async function createUserDocument(uid, data) {
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       await setDoc(doc(db, 'users', uid), payload)
+      /* Обновляем публичный счётчик (best-effort, не блокируем регистрацию) */
+      try {
+        const counterField = data.role === 'student' ? 'students' : 'teachers'
+        await setDoc(doc(db, 'meta', 'counters'), { [counterField]: increment(1) }, { merge: true })
+      } catch { /* ignore */ }
       return { error: null }
     } catch (error) {
       console.error(`[createUserDocument] attempt ${attempt}/${MAX_RETRIES}`, error)
